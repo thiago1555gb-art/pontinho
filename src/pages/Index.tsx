@@ -23,7 +23,9 @@ import {
   ChevronRight,
   BarChart3,
   Gamepad2,
-  AlertTriangle
+  AlertTriangle,
+  Skull,
+  RefreshCw
 } from "lucide-react";
 
 export default function Index() {
@@ -165,28 +167,7 @@ export default function Index() {
       const newTotal = player.totalScore + addedPoints;
 
       // Check if player burst (estourou)
-      let isEliminated = newTotal > currentMatch.limitScore;
-      let reentries = player.reentries;
-
-      if (isEliminated && settings.allowReentry) {
-        // Find the highest score among active players who haven't burst
-        const activeScores = currentMatch.players
-          .filter((p) => p.id !== player.id && p.totalScore <= currentMatch.limitScore)
-          .map((p) => p.totalScore);
-
-        const highestActiveScore = activeScores.length > 0 ? Math.max(...activeScores) : currentMatch.limitScore;
-
-        // Allow reentry with the highest active score
-        isEliminated = false;
-        reentries += 1;
-        sounds.playCrown(); // Play a special sound for reentry
-        return {
-          ...player,
-          scores: [...player.scores, highestActiveScore - player.totalScore],
-          totalScore: highestActiveScore,
-          reentries,
-        };
-      }
+      const isEliminated = newTotal > currentMatch.limitScore;
 
       if (isEliminated) {
         sounds.playElimination();
@@ -197,7 +178,6 @@ export default function Index() {
         scores: newScores,
         totalScore: newTotal,
         isEliminated,
-        reentries,
       };
     });
 
@@ -232,6 +212,43 @@ export default function Index() {
     setIsAddScoreOpen(false);
   };
 
+  // Manual Reentry (Buy-back)
+  const handleReentry = (playerId: string) => {
+    if (!currentMatch) return;
+    sounds.playCrown();
+
+    // Find the highest score among active players who haven't burst
+    const activeScores = currentMatch.players
+      .filter((p) => !p.isEliminated)
+      .map((p) => p.totalScore);
+
+    const highestActiveScore = activeScores.length > 0 ? Math.max(...activeScores) : currentMatch.limitScore;
+
+    const updatedPlayers = currentMatch.players.map((player) => {
+      if (player.id === playerId) {
+        // Reenter with the highest active score
+        const addedPoints = highestActiveScore - player.totalScore;
+        return {
+          ...player,
+          scores: [...player.scores, addedPoints],
+          totalScore: highestActiveScore,
+          isEliminated: false,
+          reentries: player.reentries + 1,
+        };
+      }
+      return player;
+    });
+
+    const updatedMatch: Match = {
+      ...currentMatch,
+      players: updatedPlayers,
+      isFinished: false,
+      winnerId: undefined,
+    };
+
+    saveCurrentMatch(updatedMatch);
+  };
+
   // Undo Last Round
   const handleUndo = () => {
     if (!currentMatch || currentMatch.rounds.length === 0) return;
@@ -244,7 +261,7 @@ export default function Index() {
         ...player,
         scores: newScores,
         totalScore: newTotal,
-        isEliminated: false, // Reset elimination on undo
+        isEliminated: newTotal > currentMatch.limitScore, // Recalculate elimination on undo
       };
     });
 
@@ -316,6 +333,19 @@ export default function Index() {
   };
 
   const themeStyles = getThemeClasses();
+
+  // Split players into active and eliminated
+  const activePlayersList = currentMatch
+    ? currentMatch.players
+        .filter((p) => !p.isEliminated)
+        .sort((a, b) => a.totalScore - b.totalScore)
+    : [];
+
+  const eliminatedPlayersList = currentMatch
+    ? currentMatch.players
+        .filter((p) => p.isEliminated)
+        .sort((a, b) => a.totalScore - b.totalScore)
+    : [];
 
   return (
     <div className={`min-h-screen ${themeStyles.bg} text-white font-sans relative overflow-x-hidden pb-24`}>
@@ -426,25 +456,21 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Leaderboard / Players List */}
-            <div className="space-y-2.5">
-              {currentMatch.players
-                .sort((a, b) => {
-                  if (a.isEliminated && !b.isEliminated) return 1;
-                  if (!a.isEliminated && b.isEliminated) return -1;
-                  return a.totalScore - b.totalScore;
-                })
-                .map((player, idx) => {
-                  const isLeader = leader && leader.id === player.id && !player.isEliminated;
+            {/* Active Players Section */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1">
+                Jogadores Ativos ({activePlayersList.length})
+              </h3>
+              <div className="space-y-2.5">
+                {activePlayersList.map((player, idx) => {
+                  const isLeader = leader && leader.id === player.id;
                   const progress = Math.min(100, (player.totalScore / currentMatch.limitScore) * 100);
 
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4 transition-all ${
-                        player.isEliminated
-                          ? "border-zinc-900 opacity-50"
-                          : isLeader
+                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4 transition-all duration-300 ${
+                        isLeader
                           ? "border-amber-500/30 shadow-lg shadow-amber-500/5"
                           : "border-zinc-800/50"
                       }`}
@@ -480,7 +506,7 @@ export default function Index() {
                               )}
                             </div>
                             <p className="text-xs text-zinc-400">
-                              {player.isEliminated ? "Eliminado" : `Posição #${idx + 1}`}
+                              Posição #{idx + 1}
                             </p>
                           </div>
                         </div>
@@ -496,7 +522,73 @@ export default function Index() {
                     </div>
                   );
                 })}
+              </div>
             </div>
+
+            {/* Eliminated Players Section */}
+            {eliminatedPlayersList.length > 0 && (
+              <div className="space-y-2 pt-2">
+                <h3 className="text-xs font-bold text-red-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
+                  <Skull size={12} />
+                  Jogadores Eliminados ({eliminatedPlayersList.length})
+                </h3>
+                <div className="space-y-2.5">
+                  {eliminatedPlayersList.map((player) => {
+                    return (
+                      <div
+                        key={player.id}
+                        className="relative overflow-hidden bg-zinc-950/60 border border-red-950/30 rounded-2xl p-4 opacity-75 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-between relative z-10">
+                          <div className="flex items-center gap-3">
+                            {/* Avatar */}
+                            <div
+                              className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold bg-red-950/20 border border-red-900/30 relative"
+                            >
+                              {player.avatar}
+                              <span className="absolute -bottom-1 -right-1 bg-red-600 text-white p-0.5 rounded-full shadow-md">
+                                <Skull size={10} />
+                              </span>
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="font-bold text-sm text-zinc-400 line-through">{player.name}</h3>
+                                <span className="text-[9px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded-full">
+                                  ELIMINADO
+                                </span>
+                              </div>
+                              <p className="text-xs text-zinc-500">
+                                Estourou com {player.totalScore} pts
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Reentry Button or Score */}
+                          <div className="flex items-center gap-3">
+                            {settings.allowReentry && !currentMatch.isFinished && (
+                              <button
+                                onClick={() => handleReentry(player.id)}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold transition-all active:scale-95"
+                              >
+                                <RefreshCw size={12} />
+                                Reentrar
+                              </button>
+                            )}
+                            <div className="text-right">
+                              <span className="text-xl font-black tracking-tight text-zinc-500">
+                                {player.totalScore}
+                              </span>
+                              <span className="text-[10px] text-zinc-600 block">pontos</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Match History Panel */}
             <MatchHistory match={currentMatch} onUndo={handleUndo} />
