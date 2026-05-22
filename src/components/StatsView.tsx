@@ -1,38 +1,63 @@
 import React from "react";
-import { Match, PlayerStats } from "../types/pontinho";
-import { Trophy, Award, TrendingUp, Users, Calendar } from "lucide-react";
+import { Match, PlayerStats, RegisteredPlayer } from "../types/pontinho";
+import { Trophy, Award, TrendingUp, Users, Calendar, Percent, RefreshCw, Star } from "lucide-react";
 
 interface StatsViewProps {
   matches: Match[];
+  registeredPlayers: RegisteredPlayer[];
 }
 
-export const StatsView: React.FC<StatsViewProps> = ({ matches }) => {
-  // Calculate stats
-  const statsMap: { [name: string]: { wins: number; games: number; reentries: number; totalScore: number; roundsCount: number } } = {};
+export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers }) => {
+  // Calculate stats dynamically
+  const statsMap: { [playerId: string]: { wins: number; games: number; reentries: number; totalScore: number; roundsCount: number; lastPlayed: number } } = {};
+
+  // Initialize stats for all registered players
+  registeredPlayers.forEach((rp) => {
+    statsMap[rp.id] = { wins: 0, games: 0, reentries: 0, totalScore: 0, roundsCount: 0, lastPlayed: 0 };
+  });
 
   matches.forEach((m) => {
+    const matchTime = new Date(m.date).getTime() || Date.now();
     m.players.forEach((p) => {
-      if (!statsMap[p.name]) {
-        statsMap[p.name] = { wins: 0, games: 0, reentries: 0, totalScore: 0, roundsCount: 0 };
+      // Match by ID or Name
+      const rp = registeredPlayers.find((r) => r.id === p.id || r.name.toLowerCase() === p.name.toLowerCase());
+      const key = rp ? rp.id : p.id;
+
+      if (!statsMap[key]) {
+        statsMap[key] = { wins: 0, games: 0, reentries: 0, totalScore: 0, roundsCount: 0, lastPlayed: 0 };
       }
-      statsMap[p.name].games += 1;
-      statsMap[p.name].reentries += p.reentries;
-      statsMap[p.name].totalScore += p.totalScore;
-      statsMap[p.name].roundsCount += p.scores.length;
+
+      statsMap[key].games += 1;
+      statsMap[key].reentries += p.reentries;
+      statsMap[key].totalScore += p.totalScore;
+      statsMap[key].roundsCount += p.scores.length;
+      if (matchTime > statsMap[key].lastPlayed) {
+        statsMap[key].lastPlayed = matchTime;
+      }
 
       if (m.isFinished && m.winnerId === p.id) {
-        statsMap[p.name].wins += 1;
+        statsMap[key].wins += 1;
       }
     });
   });
 
-  const playerStats: PlayerStats[] = Object.entries(statsMap).map(([name, data]) => ({
-    name,
-    gamesPlayed: data.games,
-    wins: data.wins,
-    totalReentries: data.reentries,
-    averageScore: data.roundsCount > 0 ? Math.round(data.totalScore / data.roundsCount) : 0,
-  })).sort((a, b) => b.wins - a.wins || a.averageScore - b.averageScore);
+  const playerStats: PlayerStats[] = registeredPlayers.map((rp) => {
+    const data = statsMap[rp.id] || { wins: 0, games: 0, reentries: 0, totalScore: 0, roundsCount: 0, lastPlayed: 0 };
+    const winRate = data.games > 0 ? Math.round((data.wins / data.games) * 100) : 0;
+    const averageScore = data.roundsCount > 0 ? Math.round(data.totalScore / data.roundsCount) : 0;
+
+    return {
+      name: rp.name,
+      avatar: rp.avatar,
+      color: rp.color,
+      gamesPlayed: data.games,
+      wins: data.wins,
+      winRate,
+      totalReentries: data.reentries,
+      averageScore,
+      lastPlayed: data.lastPlayed > 0 ? new Date(data.lastPlayed).toLocaleDateString("pt-BR") : "Nunca",
+    };
+  }).sort((a, b) => b.wins - a.wins || b.winRate - a.winRate || a.averageScore - b.averageScore);
 
   const finishedMatches = matches.filter((m) => m.isFinished);
 
@@ -56,7 +81,7 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches }) => {
           </div>
           <div>
             <p className="text-xs text-zinc-400">Jogadores Ativos</p>
-            <h4 className="text-xl font-bold text-white">{playerStats.length}</h4>
+            <h4 className="text-xl font-bold text-white">{registeredPlayers.length}</h4>
           </div>
         </div>
       </div>
@@ -75,27 +100,59 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches }) => {
             {playerStats.map((stat, idx) => (
               <div
                 key={stat.name}
-                className="flex items-center justify-between bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/30"
+                className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/30 space-y-3"
               >
-                <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    idx === 0 ? "bg-amber-500 text-black" :
-                    idx === 1 ? "bg-zinc-300 text-black" :
-                    idx === 2 ? "bg-amber-700 text-white" : "bg-zinc-800 text-zinc-400"
-                  }`}>
-                    {idx + 1}
-                  </span>
-                  <div>
-                    <h4 className="text-white font-bold text-sm">{stat.name}</h4>
-                    <p className="text-xs text-zinc-400">
-                      {stat.gamesPlayed} {stat.gamesPlayed === 1 ? "partida" : "partidas"}
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      idx === 0 ? "bg-amber-500 text-black" :
+                      idx === 1 ? "bg-zinc-300 text-black" :
+                      idx === 2 ? "bg-amber-700 text-white" : "bg-zinc-800 text-zinc-400"
+                    }`}>
+                      {idx + 1}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{stat.avatar}</span>
+                      <div>
+                        <h4 className="text-white font-bold text-sm flex items-center gap-1">
+                          {stat.name}
+                          {idx === 0 && <Star size={12} className="text-amber-400 fill-amber-400" />}
+                        </h4>
+                        <p className="text-[10px] text-zinc-500">Último jogo: {stat.lastPlayed}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-emerald-400">{stat.wins} Vitórias</p>
+                    <p className="text-[10px] text-zinc-500">{stat.gamesPlayed} partidas</p>
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <p className="text-sm font-bold text-emerald-400">{stat.wins} Vitórias</p>
-                  <p className="text-[10px] text-zinc-500">Média: {stat.averageScore} pts/rodada</p>
+                {/* Win Rate Progress Bar */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-zinc-400">
+                    <span>Aproveitamento</span>
+                    <span className="font-bold text-amber-400">{stat.winRate}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-zinc-950 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+                      style={{ width: `${stat.winRate}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Extra Stats Grid */}
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-zinc-800/30 text-[10px] text-zinc-400">
+                  <div className="flex items-center gap-1">
+                    <RefreshCw size={10} className="text-zinc-500" />
+                    <span>Reentradas: <strong className="text-zinc-300">{stat.totalReentries}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-1 justify-end">
+                    <Percent size={10} className="text-zinc-500" />
+                    <span>Média: <strong className="text-zinc-300">{stat.averageScore} pts/rodada</strong></span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -119,14 +176,14 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches }) => {
               return (
                 <div
                   key={match.id}
-                  className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/30 flex justify-between items-center"
+                  className="bg-zinc-950/40 p-3.5 rounded-xl border border-zinc-800/30 flex justify-between items-center"
                 >
                   <div>
                     <h4 className="text-white font-bold text-sm">{match.name}</h4>
-                    <p className="text-xs text-zinc-400">{match.date}</p>
+                    <p className="text-[10px] text-zinc-500">{match.date}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-zinc-400 block">Vencedor</span>
+                    <span className="text-[10px] text-zinc-500 block">Vencedor</span>
                     <span className="text-sm font-bold text-amber-400">{winner?.name || "N/A"}</span>
                   </div>
                 </div>

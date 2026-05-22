@@ -1,66 +1,52 @@
 import React, { useState } from "react";
-import { Player, GameSettings } from "../types/pontinho";
+import { Player, GameSettings, RegisteredPlayer } from "../types/pontinho";
 import { sounds } from "../utils/audio";
-import { Plus, Trash2, Play, X, UserPlus } from "lucide-react";
+import { Plus, Trash2, Play, X, UserPlus, Check } from "lucide-react";
 
 interface NewMatchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  registeredPlayers: RegisteredPlayer[];
   onStartMatch: (players: Omit<Player, "scores" | "totalScore" | "isEliminated" | "reentries">[], settings: GameSettings) => void;
 }
 
-const PRESET_COLORS = [
-  "#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316"
-];
-
-const PRESET_EMOJIS = ["🃏", "👑", "🦁", "🦊", "🐼", "🐯", "🦉", "🦄", "🦖", "🚀", "💎", "🔥"];
-
-export const NewMatchModal: React.FC<NewMatchModalProps> = ({ isOpen, onClose, onStartMatch }) => {
-  const [playerInputs, setPlayerInputs] = useState<Array<{ name: string; color: string; avatar: string }>>([
-    { name: "Jogador 1", color: PRESET_COLORS[0], avatar: PRESET_EMOJIS[0] },
-    { name: "Jogador 2", color: PRESET_COLORS[1], avatar: PRESET_EMOJIS[1] },
-  ]);
-
+export const NewMatchModal: React.FC<NewMatchModalProps> = ({
+  isOpen,
+  onClose,
+  registeredPlayers,
+  onStartMatch,
+}) => {
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [limitScore, setLimitScore] = useState<number>(100);
   const [allowReentry, setAllowReentry] = useState<boolean>(true);
   const [theme, setTheme] = useState<GameSettings["theme"]>("casino-green");
 
   if (!isOpen) return null;
 
-  const handleAddPlayer = () => {
+  const handleTogglePlayer = (id: string) => {
     sounds.playClick();
-    if (playerInputs.length >= 10) return;
-    const nextIndex = playerInputs.length;
-    setPlayerInputs([
-      ...playerInputs,
-      {
-        name: `Jogador ${nextIndex + 1}`,
-        color: PRESET_COLORS[nextIndex % PRESET_COLORS.length],
-        avatar: PRESET_EMOJIS[nextIndex % PRESET_EMOJIS.length],
-      },
-    ]);
-  };
-
-  const handleRemovePlayer = (index: number) => {
-    sounds.playClick();
-    if (playerInputs.length <= 2) return;
-    setPlayerInputs(playerInputs.filter((_, i) => i !== index));
-  };
-
-  const handlePlayerChange = (index: number, field: "name" | "color" | "avatar", value: string) => {
-    const updated = [...playerInputs];
-    updated[index] = { ...updated[index], [field]: value };
-    setPlayerInputs(updated);
+    setSelectedPlayerIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((pId) => pId !== id);
+      }
+      if (prev.length >= 10) return prev; // Max 10 players
+      return [...prev, id];
+    });
   };
 
   const handleStart = () => {
+    if (selectedPlayerIds.length < 2) return;
+
     sounds.playSuccess();
-    const formattedPlayers = playerInputs.map((p, idx) => ({
-      id: `player-${Date.now()}-${idx}`,
-      name: p.name.trim() || `Jogador ${idx + 1}`,
-      color: p.color,
-      avatar: p.avatar,
-    }));
+    const formattedPlayers = selectedPlayerIds.map((id) => {
+      const rp = registeredPlayers.find((p) => p.id === id)!;
+      return {
+        id: rp.id,
+        name: rp.name,
+        color: rp.color,
+        avatar: rp.avatar,
+      };
+    });
 
     onStartMatch(formattedPlayers, {
       limitScore,
@@ -86,7 +72,7 @@ export const NewMatchModal: React.FC<NewMatchModalProps> = ({ isOpen, onClose, o
             Novo Jogo
           </span>
           <h2 className="text-2xl font-extrabold text-white mt-2">Configurar Partida</h2>
-          <p className="text-zinc-400 text-sm mt-1">Defina as regras e adicione os jogadores</p>
+          <p className="text-zinc-400 text-sm mt-1">Defina as regras e selecione os jogadores</p>
         </div>
 
         {/* Game Rules */}
@@ -153,81 +139,55 @@ export const NewMatchModal: React.FC<NewMatchModalProps> = ({ isOpen, onClose, o
           </div>
         </div>
 
-        {/* Players List */}
+        {/* Players Selection */}
         <div className="space-y-3 mb-6">
           <div className="flex justify-between items-center">
             <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Jogadores ({playerInputs.length}/10)
+              Selecionar Jogadores ({selectedPlayerIds.length}/10)
             </h3>
-            {playerInputs.length < 10 && (
-              <button
-                onClick={handleAddPlayer}
-                className="flex items-center gap-1 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
-              >
-                <UserPlus size={14} />
-                Adicionar
-              </button>
-            )}
+            <span className="text-xs text-zinc-500">Mínimo 2 jogadores</span>
           </div>
 
-          <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
-            {playerInputs.map((player, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 bg-zinc-950/40 p-2 rounded-xl border border-zinc-800/40"
-              >
-                {/* Emoji Selector */}
-                <select
-                  value={player.avatar}
-                  onChange={(e) => handlePlayerChange(index, "avatar", e.target.value)}
-                  className="bg-zinc-900 border border-zinc-800 rounded-lg p-1 text-lg focus:outline-none"
-                >
-                  {PRESET_EMOJIS.map((emoji) => (
-                    <option key={emoji} value={emoji}>{emoji}</option>
-                  ))}
-                </select>
-
-                {/* Name Input */}
-                <input
-                  type="text"
-                  value={player.name}
-                  onChange={(e) => handlePlayerChange(index, "name", e.target.value)}
-                  placeholder={`Jogador ${index + 1}`}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-emerald-500"
-                />
-
-                {/* Color Picker */}
-                <div className="flex gap-1">
-                  {PRESET_COLORS.slice(0, 4).map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => handlePlayerChange(index, "color", color)}
-                      className={`w-5 h-5 rounded-full border transition-transform ${
-                        player.color === color ? "scale-110 border-white" : "border-transparent"
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-
-                {/* Delete Button */}
-                {playerInputs.length > 2 && (
+          {registeredPlayers.length === 0 ? (
+            <div className="text-center py-6 bg-zinc-950/40 border border-zinc-800/40 rounded-2xl">
+              <p className="text-zinc-400 text-xs">Nenhum jogador cadastrado.</p>
+              <p className="text-[10px] text-zinc-500 mt-1">Cadastre jogadores na aba "Jogadores" primeiro.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+              {registeredPlayers.map((player) => {
+                const isSelected = selectedPlayerIds.includes(player.id);
+                return (
                   <button
-                    onClick={() => handleRemovePlayer(index)}
-                    className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                    key={player.id}
+                    onClick={() => handleTogglePlayer(player.id)}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all text-left ${
+                      isSelected
+                        ? "bg-amber-500/10 border-amber-500/40 text-white"
+                        : "bg-zinc-950/40 border-zinc-800/40 text-zinc-400 hover:border-zinc-700"
+                    }`}
                   >
-                    <Trash2 size={16} />
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="text-lg">{player.avatar}</span>
+                      <span className="text-xs font-bold truncate">{player.name}</span>
+                    </div>
+                    {isSelected && (
+                      <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-black">
+                        <Check size={10} strokeWidth={3} />
+                      </div>
+                    )}
                   </button>
-                )}
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Start Button */}
         <button
           onClick={handleStart}
-          className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 transition-all transform active:scale-95"
+          disabled={selectedPlayerIds.length < 2}
+          className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 disabled:opacity-50 disabled:pointer-events-none text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 transition-all transform active:scale-95"
         >
           <Play size={18} fill="currentColor" />
           Começar Partida

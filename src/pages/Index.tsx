@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Player, Match, GameSettings } from "../types/pontinho";
+import { Player, Match, GameSettings, RegisteredPlayer } from "../types/pontinho";
 import { sounds } from "../utils/audio";
 import { Confetti } from "../components/Confetti";
 import { BackgroundParticles } from "../components/BackgroundParticles";
@@ -7,6 +7,7 @@ import { NewMatchModal } from "../components/NewMatchModal";
 import { AddScoreModal } from "../components/AddScoreModal";
 import { StatsView } from "../components/StatsView";
 import { MatchHistory } from "../components/MatchHistory";
+import { PlayersManager } from "../components/PlayersManager";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import {
   Trophy,
@@ -25,12 +26,14 @@ import {
   Gamepad2,
   AlertTriangle,
   Skull,
-  RefreshCw
+  RefreshCw,
+  Users
 } from "lucide-react";
 
 export default function Index() {
   // State
   const [matches, setMatches] = useState<Match[]>([]);
+  const [registeredPlayers, setRegisteredPlayers] = useState<RegisteredPlayer[]>([]);
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [settings, setSettings] = useState<GameSettings>({
     limitScore: 100,
@@ -39,10 +42,10 @@ export default function Index() {
     allowReentry: true,
   });
 
-  // Modals
+  // Modals & Navigation
   const [isNewMatchOpen, setIsNewMatchOpen] = useState<boolean>(false);
   const [isAddScoreOpen, setIsAddScoreOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<"game" | "stats">("game");
+  const [activeTab, setActiveTab] = useState<"game" | "players" | "stats">("game");
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
 
   // Timer
@@ -54,6 +57,7 @@ export default function Index() {
     const savedMatches = localStorage.getItem("pontinho_matches");
     const savedSettings = localStorage.getItem("pontinho_settings");
     const savedCurrentMatch = localStorage.getItem("pontinho_current_match");
+    const savedPlayers = localStorage.getItem("pontinho_registered_players");
 
     if (savedMatches) setMatches(JSON.parse(savedMatches));
     if (savedSettings) {
@@ -67,6 +71,20 @@ export default function Index() {
       if (!parsedCurrent.isFinished) {
         setTimer(parsedCurrent.duration || 0);
       }
+    }
+
+    // Load or initialize registered players
+    if (savedPlayers) {
+      setRegisteredPlayers(JSON.parse(savedPlayers));
+    } else {
+      // Default initial roster
+      const initialRoster: RegisteredPlayer[] = [
+        { id: "p1", name: "Jogador 1", color: "#EF4444", avatar: "🃏", createdAt: Date.now() },
+        { id: "p2", name: "Jogador 2", color: "#F59E0B", avatar: "👑", createdAt: Date.now() },
+        { id: "p3", name: "Jogador 3", color: "#10B981", avatar: "🦁", createdAt: Date.now() },
+      ];
+      setRegisteredPlayers(initialRoster);
+      localStorage.setItem("pontinho_registered_players", JSON.stringify(initialRoster));
     }
   }, []);
 
@@ -83,6 +101,35 @@ export default function Index() {
     } else {
       localStorage.removeItem("pontinho_current_match");
     }
+  };
+
+  const saveRegisteredPlayers = (updatedPlayers: RegisteredPlayer[]) => {
+    setRegisteredPlayers(updatedPlayers);
+    localStorage.setItem("pontinho_registered_players", JSON.stringify(updatedPlayers));
+  };
+
+  // Player Database Actions
+  const handleAddPlayer = (name: string, color: string, avatar: string) => {
+    const newPlayer: RegisteredPlayer = {
+      id: `player-${Date.now()}`,
+      name,
+      color,
+      avatar,
+      createdAt: Date.now(),
+    };
+    saveRegisteredPlayers([...registeredPlayers, newPlayer]);
+  };
+
+  const handleEditPlayer = (id: string, name: string, color: string, avatar: string) => {
+    const updated = registeredPlayers.map((p) =>
+      p.id === id ? { ...p, name, color, avatar } : p
+    );
+    saveRegisteredPlayers(updated);
+  };
+
+  const handleDeletePlayer = (id: string) => {
+    const updated = registeredPlayers.filter((p) => p.id !== id);
+    saveRegisteredPlayers(updated);
   };
 
   // Timer Effect
@@ -394,33 +441,51 @@ export default function Index() {
       {/* Main Content Container */}
       <main className="max-w-md mx-auto px-4 pt-4 space-y-4 relative z-10">
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-2 gap-2 bg-zinc-900/60 p-1 rounded-2xl border border-zinc-800/50">
+        <div className="grid grid-cols-3 gap-1 bg-zinc-900/60 p-1 rounded-2xl border border-zinc-800/50">
           <button
             onClick={() => { sounds.playClick(); setActiveTab("game"); }}
-            className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            className={`py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
               activeTab === "game"
                 ? "bg-zinc-800 text-white shadow-md"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Gamepad2 size={14} />
+            <Gamepad2 size={13} />
             Partida
           </button>
           <button
+            onClick={() => { sounds.playClick(); setActiveTab("players"); }}
+            className={`py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
+              activeTab === "players"
+                ? "bg-zinc-800 text-white shadow-md"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            <Users size={13} />
+            Jogadores
+          </button>
+          <button
             onClick={() => { sounds.playClick(); setActiveTab("stats"); }}
-            className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            className={`py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
               activeTab === "stats"
                 ? "bg-zinc-800 text-white shadow-md"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <BarChart3 size={14} />
+            <BarChart3 size={13} />
             Estatísticas
           </button>
         </div>
 
         {activeTab === "stats" ? (
-          <StatsView matches={matches} />
+          <StatsView matches={matches} registeredPlayers={registeredPlayers} />
+        ) : activeTab === "players" ? (
+          <PlayersManager
+            registeredPlayers={registeredPlayers}
+            onAddPlayer={handleAddPlayer}
+            onEditPlayer={handleEditPlayer}
+            onDeletePlayer={handleDeletePlayer}
+          />
         ) : !currentMatch ? (
           /* Empty State / Start Match */
           <div className="text-center py-12 space-y-6">
@@ -635,6 +700,7 @@ export default function Index() {
       <NewMatchModal
         isOpen={isNewMatchOpen}
         onClose={() => setIsNewMatchOpen(false)}
+        registeredPlayers={registeredPlayers}
         onStartMatch={handleStartMatch}
       />
 

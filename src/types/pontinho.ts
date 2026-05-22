@@ -9,6 +9,14 @@ export interface Player {
   reentries: number;
 }
 
+export interface RegisteredPlayer {
+  id: string;
+  name: string;
+  color: string;
+  avatar: string;
+  createdAt: number;
+}
+
 export interface Round {
   id: number;
   scores: { [playerId: string]: number };
@@ -36,8 +44,12 @@ export interface GameSettings {
 
 export interface PlayerStats {
   name: string;
+  avatar: string;
+  color: string;
   gamesPlayed: number;
   wins: number;
+  winRate: number;
   totalReentries: number;
   averageScore: number;
+  lastPlayed: string;
 }
