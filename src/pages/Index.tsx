@@ -445,7 +445,7 @@ export default function Index() {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-base font-black tracking-tight">PONTINHO</h1>
+                <h1 className="text-base font-black tracking-tight">Baioia</h1>
                 {/* Sync Status Indicator */}
                 {isOnline ? (
                   <span className="flex h-2 w-2 relative">
