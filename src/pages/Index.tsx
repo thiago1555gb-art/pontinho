@@ -456,7 +456,6 @@ export default function Index() {
                   <span className="h-2 w-2 rounded-full bg-zinc-600" title="Modo Local / Offline"></span>
                 )}
               </div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-widest">Marcador Premium</p>
             </div>
           </div>
 
