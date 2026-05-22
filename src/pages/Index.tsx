@@ -9,6 +9,7 @@ import { StatsView } from "../components/StatsView";
 import { MatchHistory } from "../components/MatchHistory";
 import { PlayersManager } from "../components/PlayersManager";
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import { showSuccess, showError } from "../utils/toast";
 import {
   fetchRegisteredPlayers,
   insertRegisteredPlayer,
@@ -16,7 +17,9 @@ import {
   deleteRegisteredPlayer,
   fetchMatches,
   insertMatch,
-  checkSupabaseConnection
+  checkSupabaseConnection,
+  isPlayerNameDuplicate,
+  generateUUID
 } from "../utils/supabaseService";
 import {
   Trophy,
@@ -113,12 +116,23 @@ export default function Index() {
 
   // Player Database Actions
   const handleAddPlayer = async (name: string, color: string, avatar: string) => {
+    // Check for duplicate name
+    const isDuplicate = await isPlayerNameDuplicate(name);
+    if (isDuplicate) {
+      showError("Já existe um jogador cadastrado com este nome!");
+      sounds.playElimination();
+      return;
+    }
+
     const newPlayer: RegisteredPlayer = {
-      id: `player-${Date.now()}`,
+      id: generateUUID(),
       name,
       color,
       avatar,
       createdAt: Date.now(),
+      gamesPlayed: 0,
+      wins: 0,
+      winRate: 0,
     };
 
     const updated = [...registeredPlayers, newPlayer];
@@ -127,11 +141,34 @@ export default function Index() {
 
     // Sync to Supabase
     const success = await insertRegisteredPlayer(newPlayer);
-    if (success) setIsOnline(true);
+    if (success) {
+      setIsOnline(true);
+      showSuccess("Jogador cadastrado com sucesso!");
+    } else {
+      showSuccess("Jogador salvo localmente (offline)");
+    }
   };
 
   const handleEditPlayer = async (id: string, name: string, color: string, avatar: string) => {
-    const updatedPlayer = { id, name, color, avatar, createdAt: Date.now() };
+    // Check for duplicate name excluding current player
+    const isDuplicate = await isPlayerNameDuplicate(name, id);
+    if (isDuplicate) {
+      showError("Já existe outro jogador com este nome!");
+      sounds.playElimination();
+      return;
+    }
+
+    const existing = registeredPlayers.find((p) => p.id === id);
+    const updatedPlayer = {
+      id,
+      name,
+      color,
+      avatar,
+      createdAt: existing?.createdAt || Date.now(),
+      gamesPlayed: existing?.gamesPlayed || 0,
+      wins: existing?.wins || 0,
+      winRate: existing?.winRate || 0,
+    };
     const updated = registeredPlayers.map((p) => (p.id === id ? updatedPlayer : p));
     
     setRegisteredPlayers(updated);
@@ -139,7 +176,12 @@ export default function Index() {
 
     // Sync to Supabase
     const success = await updateRegisteredPlayer(updatedPlayer);
-    if (success) setIsOnline(true);
+    if (success) {
+      setIsOnline(true);
+      showSuccess("Jogador atualizado com sucesso!");
+    } else {
+      showSuccess("Alterações salvas localmente");
+    }
   };
 
   const handleDeletePlayer = async (id: string) => {
@@ -149,7 +191,12 @@ export default function Index() {
 
     // Sync to Supabase
     const success = await deleteRegisteredPlayer(id);
-    if (success) setIsOnline(true);
+    if (success) {
+      setIsOnline(true);
+      showSuccess("Jogador removido com sucesso!");
+    } else {
+      showSuccess("Jogador removido localmente");
+    }
   };
 
   // Timer Effect
@@ -207,7 +254,7 @@ export default function Index() {
     }));
 
     const newMatch: Match = {
-      id: `match-${Date.now()}`,
+      id: generateUUID(),
       name: `Mesa ${matches.length + 1}`,
       date: new Date().toLocaleDateString("pt-BR"),
       players: newPlayers,
@@ -223,6 +270,7 @@ export default function Index() {
     setCurrentMatch(newMatch);
     localStorage.setItem("pontinho_current_match", JSON.stringify(newMatch));
     setIsNewMatchOpen(false);
+    showSuccess("Partida iniciada!");
   };
 
   // Add Round Score
@@ -284,7 +332,17 @@ export default function Index() {
 
       // Sync completed match to Supabase
       const success = await insertMatch(updatedMatch);
-      if (success) setIsOnline(true);
+      if (success) {
+        setIsOnline(true);
+        showSuccess("Partida finalizada e salva na nuvem!");
+        
+        // Refresh players list to get updated stats
+        const players = await fetchRegisteredPlayers();
+        setRegisteredPlayers(players);
+        localStorage.setItem("pontinho_registered_players", JSON.stringify(players));
+      } else {
+        showSuccess("Partida finalizada e salva localmente");
+      }
     }
 
     setIsAddScoreOpen(false);
@@ -326,6 +384,7 @@ export default function Index() {
 
     setCurrentMatch(updatedMatch);
     localStorage.setItem("pontinho_current_match", JSON.stringify(updatedMatch));
+    showSuccess("Jogador reentrou na partida!");
   };
 
   // Undo Last Round
@@ -354,6 +413,7 @@ export default function Index() {
 
     setCurrentMatch(updatedMatch);
     localStorage.setItem("pontinho_current_match", JSON.stringify(updatedMatch));
+    showSuccess("Última rodada desfeita!");
   };
 
   // Reset Match
@@ -363,6 +423,7 @@ export default function Index() {
     localStorage.removeItem("pontinho_current_match");
     setTimer(0);
     setShowResetConfirm(false);
+    showSuccess("Partida cancelada.");
   };
 
   // Get Leader (Player with lowest score)
@@ -448,9 +509,9 @@ export default function Index() {
                 <h1 className="text-base font-black tracking-tight">Baioia</h1>
                 {/* Sync Status Indicator */}
                 {isOnline ? (
-                  <span className="flex h-2 w-2 relative">
+                  <span className="flex h-2 w-2 relative" title="Supabase Conectado">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" title="Supabase Conectado"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                 ) : (
                   <span className="h-2 w-2 rounded-full bg-zinc-600" title="Modo Local / Offline"></span>
