@@ -15,6 +15,9 @@ export interface RegisteredPlayer {
   color: string;
   avatar: string;
   createdAt: number;
+  gamesPlayed?: number;
+  wins?: number;
+  winRate?: number;
 }
 
 export interface Round {
