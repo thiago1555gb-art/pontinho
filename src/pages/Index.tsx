@@ -10,6 +10,15 @@ import { MatchHistory } from "../components/MatchHistory";
 import { PlayersManager } from "../components/PlayersManager";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import {
+  fetchRegisteredPlayers,
+  insertRegisteredPlayer,
+  updateRegisteredPlayer,
+  deleteRegisteredPlayer,
+  fetchMatches,
+  insertMatch,
+  checkSupabaseConnection
+} from "../utils/supabaseService";
+import {
   Trophy,
   Volume2,
   VolumeX,
@@ -27,7 +36,10 @@ import {
   AlertTriangle,
   Skull,
   RefreshCw,
-  Users
+  Users,
+  Cloud,
+  CloudOff,
+  Loader2
 } from "lucide-react";
 
 export default function Index() {
@@ -42,6 +54,10 @@ export default function Index() {
     allowReentry: true,
   });
 
+  // Supabase Sync Status
+  const [isOnline, setIsOnline] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   // Modals & Navigation
   const [isNewMatchOpen, setIsNewMatchOpen] = useState<boolean>(false);
   const [isAddScoreOpen, setIsAddScoreOpen] = useState<boolean>(false);
@@ -52,64 +68,51 @@ export default function Index() {
   const [timer, setTimer] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load data from LocalStorage
+  // Load data from Supabase & LocalStorage
   useEffect(() => {
-    const savedMatches = localStorage.getItem("pontinho_matches");
-    const savedSettings = localStorage.getItem("pontinho_settings");
-    const savedCurrentMatch = localStorage.getItem("pontinho_current_match");
-    const savedPlayers = localStorage.getItem("pontinho_registered_players");
+    async function loadData() {
+      setIsLoading(true);
+      
+      // Check connection
+      const connected = await checkSupabaseConnection();
+      setIsOnline(connected);
 
-    if (savedMatches) setMatches(JSON.parse(savedMatches));
-    if (savedSettings) {
-      const parsedSettings = JSON.parse(savedSettings);
-      setSettings(parsedSettings);
-      sounds.setEnabled(parsedSettings.soundEnabled);
-    }
-    if (savedCurrentMatch) {
-      const parsedCurrent = JSON.parse(savedCurrentMatch);
-      setCurrentMatch(parsedCurrent);
-      if (!parsedCurrent.isFinished) {
-        setTimer(parsedCurrent.duration || 0);
+      // Fetch players
+      const players = await fetchRegisteredPlayers();
+      setRegisteredPlayers(players);
+      localStorage.setItem("pontinho_registered_players", JSON.stringify(players));
+
+      // Fetch matches
+      const history = await fetchMatches();
+      setMatches(history);
+      localStorage.setItem("pontinho_matches", JSON.stringify(history));
+
+      // Load current active match from localStorage
+      const savedCurrentMatch = localStorage.getItem("pontinho_current_match");
+      if (savedCurrentMatch) {
+        const parsedCurrent = JSON.parse(savedCurrentMatch);
+        setCurrentMatch(parsedCurrent);
+        if (!parsedCurrent.isFinished) {
+          setTimer(parsedCurrent.duration || 0);
+        }
       }
+
+      // Load settings
+      const savedSettings = localStorage.getItem("pontinho_settings");
+      if (savedSettings) {
+        const parsedSettings = JSON.parse(savedSettings);
+        setSettings(parsedSettings);
+        sounds.setEnabled(parsedSettings.soundEnabled);
+      }
+
+      setIsLoading(false);
     }
 
-    // Load or initialize registered players
-    if (savedPlayers) {
-      setRegisteredPlayers(JSON.parse(savedPlayers));
-    } else {
-      // Default initial roster
-      const initialRoster: RegisteredPlayer[] = [
-        { id: "p1", name: "Jogador 1", color: "#EF4444", avatar: "🃏", createdAt: Date.now() },
-        { id: "p2", name: "Jogador 2", color: "#F59E0B", avatar: "👑", createdAt: Date.now() },
-        { id: "p3", name: "Jogador 3", color: "#10B981", avatar: "🦁", createdAt: Date.now() },
-      ];
-      setRegisteredPlayers(initialRoster);
-      localStorage.setItem("pontinho_registered_players", JSON.stringify(initialRoster));
-    }
+    loadData();
   }, []);
 
-  // Save data to LocalStorage
-  const saveMatches = (updatedMatches: Match[]) => {
-    setMatches(updatedMatches);
-    localStorage.setItem("pontinho_matches", JSON.stringify(updatedMatches));
-  };
-
-  const saveCurrentMatch = (match: Match | null) => {
-    setCurrentMatch(match);
-    if (match) {
-      localStorage.setItem("pontinho_current_match", JSON.stringify(match));
-    } else {
-      localStorage.removeItem("pontinho_current_match");
-    }
-  };
-
-  const saveRegisteredPlayers = (updatedPlayers: RegisteredPlayer[]) => {
-    setRegisteredPlayers(updatedPlayers);
-    localStorage.setItem("pontinho_registered_players", JSON.stringify(updatedPlayers));
-  };
-
   // Player Database Actions
-  const handleAddPlayer = (name: string, color: string, avatar: string) => {
+  const handleAddPlayer = async (name: string, color: string, avatar: string) => {
     const newPlayer: RegisteredPlayer = {
       id: `player-${Date.now()}`,
       name,
@@ -117,19 +120,36 @@ export default function Index() {
       avatar,
       createdAt: Date.now(),
     };
-    saveRegisteredPlayers([...registeredPlayers, newPlayer]);
+
+    const updated = [...registeredPlayers, newPlayer];
+    setRegisteredPlayers(updated);
+    localStorage.setItem("pontinho_registered_players", JSON.stringify(updated));
+
+    // Sync to Supabase
+    const success = await insertRegisteredPlayer(newPlayer);
+    if (success) setIsOnline(true);
   };
 
-  const handleEditPlayer = (id: string, name: string, color: string, avatar: string) => {
-    const updated = registeredPlayers.map((p) =>
-      p.id === id ? { ...p, name, color, avatar } : p
-    );
-    saveRegisteredPlayers(updated);
+  const handleEditPlayer = async (id: string, name: string, color: string, avatar: string) => {
+    const updatedPlayer = { id, name, color, avatar, createdAt: Date.now() };
+    const updated = registeredPlayers.map((p) => (p.id === id ? updatedPlayer : p));
+    
+    setRegisteredPlayers(updated);
+    localStorage.setItem("pontinho_registered_players", JSON.stringify(updated));
+
+    // Sync to Supabase
+    const success = await updateRegisteredPlayer(updatedPlayer);
+    if (success) setIsOnline(true);
   };
 
-  const handleDeletePlayer = (id: string) => {
+  const handleDeletePlayer = async (id: string) => {
     const updated = registeredPlayers.filter((p) => p.id !== id);
-    saveRegisteredPlayers(updated);
+    setRegisteredPlayers(updated);
+    localStorage.setItem("pontinho_registered_players", JSON.stringify(updated));
+
+    // Sync to Supabase
+    const success = await deleteRegisteredPlayer(id);
+    if (success) setIsOnline(true);
   };
 
   // Timer Effect
@@ -140,7 +160,9 @@ export default function Index() {
           const next = prev + 1;
           // Periodically save duration
           if (next % 5 === 0 && currentMatch) {
-            saveCurrentMatch({ ...currentMatch, duration: next });
+            const updated = { ...currentMatch, duration: next };
+            setCurrentMatch(updated);
+            localStorage.setItem("pontinho_current_match", JSON.stringify(updated));
           }
           return next;
         });
@@ -198,12 +220,13 @@ export default function Index() {
     setTimer(0);
     setSettings(matchSettings);
     localStorage.setItem("pontinho_settings", JSON.stringify(matchSettings));
-    saveCurrentMatch(newMatch);
+    setCurrentMatch(newMatch);
+    localStorage.setItem("pontinho_current_match", JSON.stringify(newMatch));
     setIsNewMatchOpen(false);
   };
 
   // Add Round Score
-  const handleSaveRound = (roundScores: { [playerId: string]: number }) => {
+  const handleSaveRound = async (roundScores: { [playerId: string]: number }) => {
     if (!currentMatch) return;
 
     const updatedPlayers = currentMatch.players.map((player) => {
@@ -248,12 +271,20 @@ export default function Index() {
       duration: timer,
     };
 
-    saveCurrentMatch(updatedMatch);
+    setCurrentMatch(updatedMatch);
+    if (updatedMatch) {
+      localStorage.setItem("pontinho_current_match", JSON.stringify(updatedMatch));
+    }
 
     if (isFinished) {
       sounds.playSuccess();
-      // Save to matches history
-      saveMatches([updatedMatch, ...matches]);
+      const updatedMatches = [updatedMatch, ...matches];
+      setMatches(updatedMatches);
+      localStorage.setItem("pontinho_matches", JSON.stringify(updatedMatches));
+
+      // Sync completed match to Supabase
+      const success = await insertMatch(updatedMatch);
+      if (success) setIsOnline(true);
     }
 
     setIsAddScoreOpen(false);
@@ -293,7 +324,8 @@ export default function Index() {
       winnerId: undefined,
     };
 
-    saveCurrentMatch(updatedMatch);
+    setCurrentMatch(updatedMatch);
+    localStorage.setItem("pontinho_current_match", JSON.stringify(updatedMatch));
   };
 
   // Undo Last Round
@@ -320,13 +352,15 @@ export default function Index() {
       winnerId: undefined,
     };
 
-    saveCurrentMatch(updatedMatch);
+    setCurrentMatch(updatedMatch);
+    localStorage.setItem("pontinho_current_match", JSON.stringify(updatedMatch));
   };
 
   // Reset Match
   const handleResetMatch = () => {
     sounds.playClick();
-    saveCurrentMatch(null);
+    setCurrentMatch(null);
+    localStorage.removeItem("pontinho_current_match");
     setTimer(0);
     setShowResetConfirm(false);
   };
@@ -410,7 +444,18 @@ export default function Index() {
               <Gamepad2 size={18} className="text-black" />
             </div>
             <div>
-              <h1 className="text-base font-black tracking-tight">PONTINHO</h1>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-base font-black tracking-tight">PONTINHO</h1>
+                {/* Sync Status Indicator */}
+                {isOnline ? (
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" title="Supabase Conectado"></span>
+                  </span>
+                ) : (
+                  <span className="h-2 w-2 rounded-full bg-zinc-600" title="Modo Local / Offline"></span>
+                )}
+              </div>
               <p className="text-[10px] text-zinc-400 uppercase tracking-widest">Marcador Premium</p>
             </div>
           </div>
@@ -477,7 +522,12 @@ export default function Index() {
           </button>
         </div>
 
-        {activeTab === "stats" ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-3">
+            <Loader2 className="animate-spin text-amber-500" size={32} />
+            <p className="text-zinc-400 text-sm">Sincronizando com Supabase...</p>
+          </div>
+        ) : activeTab === "stats" ? (
           <StatsView matches={matches} registeredPlayers={registeredPlayers} />
         ) : activeTab === "players" ? (
           <PlayersManager
