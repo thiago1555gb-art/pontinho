@@ -18,6 +18,11 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        serif: ["Cinzel", "Georgia", "serif"],
+        sans: ["'Cormorant Garamond'", "ui-serif", "Georgia", "serif"],
+        mono: ["'Courier New'", "Courier", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
