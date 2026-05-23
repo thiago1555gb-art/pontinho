@@ -693,7 +693,7 @@ export default function Index() {
                             >
                               <div
                                 className={`rounded-full overflow-hidden flex items-center justify-center font-bold shadow-2xl relative transition-all duration-300 ${
-                                  isLeader ? "w-15 h-15 text-3xl" : "w-13 h-13 text-2xl"
+                                  isLeader ? "w-16 h-16 text-3xl" : "w-14 h-14 text-2xl"
                                 }`}
                                 style={{ backgroundColor: `${player.color}15` }}
                               >
