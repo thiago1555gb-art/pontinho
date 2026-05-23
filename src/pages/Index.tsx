@@ -590,16 +590,16 @@ export default function Index() {
               <div className="self-end font-bold text-lg leading-none rotate-180">♠</div>
             </div>
             <div className="space-y-3">
-              <h2 className="text-2xl font-bold text-white tracking-wide">Nenhuma mesa ativa</h2>
+              <h2 className="text-2xl font-bold text-white tracking-wide">Nenhuma mesa activa</h2>
               <p className="text-zinc-300 text-sm max-w-xs mx-auto leading-relaxed font-sans">
                 Abra um novo baralho e comece a registrar as rodadas com a elegância de um clube de cartas tradicional.
               </p>
             </div>
             <button
               onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-              className="px-8 py-4 bg-[#FFFDF9] text-zinc-900 hover:bg-zinc-100 font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2.5 mx-auto transition-all transform active:scale-95 text-sm border-2 border-[#D4AF37] font-sans"
+              className="px-8 py-4 bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-zinc-950 font-serif font-extrabold tracking-wider uppercase rounded-2xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] flex items-center justify-center gap-2.5 mx-auto transition-all duration-300 transform hover:scale-105 active:scale-95 text-sm border border-[#D4AF37]"
             >
-              <Play size={15} fill="currentColor" />
+              <Play size={15} fill="currentColor" className="text-zinc-950" />
               Distribuir Cartas
             </button>
           </div>
