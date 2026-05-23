@@ -287,8 +287,8 @@ export default function Index() {
       const newScores = [...player.scores, addedPoints];
       const newTotal = player.totalScore + addedPoints;
 
-      // Check if player burst (estourou)
-      const isEliminated = newTotal > currentMatch.limitScore;
+      // Check if player burst (estourou) - Eliminated if total is equal or greater than limitScore
+      const isEliminated = newTotal >= currentMatch.limitScore;
 
       if (isEliminated) {
         sounds.playElimination();
@@ -402,7 +402,7 @@ export default function Index() {
         ...player,
         scores: newScores,
         totalScore: newTotal,
-        isEliminated: newTotal > currentMatch.limitScore, // Recalculate elimination on undo
+        isEliminated: newTotal >= currentMatch.limitScore, // Recalculate elimination on undo
       };
     });
 
