@@ -23,6 +23,7 @@ import {
 } from "../utils/supabaseService";
 import {
   Trophy,
+  Crown,
   Volume2,
   VolumeX,
   RotateCcw,
@@ -438,6 +439,15 @@ export default function Index() {
 
   const leader = getLeader();
 
+  // Helper to convert hex to rgba for custom glows
+  const hexToRgba = (hex: string, alpha: number) => {
+    const cleanHex = hex.replace("#", "");
+    const r = parseInt(cleanHex.slice(0, 2), 16);
+    const g = parseInt(cleanHex.slice(2, 4), 16);
+    const b = parseInt(cleanHex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   // Theme styling helper
   const getThemeClasses = () => {
     switch (settings.theme) {
@@ -605,7 +615,7 @@ export default function Index() {
               <Sparkles size={36} className={themeStyles.accent} />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-extrabold">Nenhuma partida ativa</h2>
+              <h2 className="text-xl font-extrabold">Nenhuma partida activa</h2>
               <p className="text-zinc-400 text-sm max-w-xs mx-auto">
                 Comece uma nova partida de Pontinho e acompanhe os pontos em tempo real com estilo.
               </p>
@@ -634,74 +644,109 @@ export default function Index() {
             </div>
 
             {/* Active Players Section */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1">
                 Jogadores Ativos ({activePlayersList.length})
               </h3>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {activePlayersList.map((player, idx) => {
                   const isLeader = leader && leader.id === player.id;
                   const progress = Math.min(100, (player.totalScore / currentMatch.limitScore) * 100);
+                  const playerGlow = hexToRgba(player.color, isLeader ? 0.25 : 0.12);
 
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4 transition-all duration-300 ${
+                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
                         isLeader
-                          ? "border-amber-500/30 shadow-lg shadow-amber-500/5"
-                          : "border-zinc-800/50"
+                          ? "border-amber-500/50 bg-gradient-to-r from-zinc-900/90 to-amber-950/20"
+                          : "border-zinc-800/60"
                       }`}
+                      style={{
+                        boxShadow: `0 10px 25px -5px ${playerGlow}, 0 8px 10px -6px ${playerGlow}`
+                      }}
                     >
                       {/* Progress Bar Background */}
                       <div
-                        className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-amber-500 to-red-500 transition-all duration-500"
+                        className="absolute bottom-0 left-0 h-1.5 bg-gradient-to-r from-amber-500 to-red-500 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
 
-                      <div className="flex items-center justify-between relative z-10">
-                        <div className="flex items-center gap-3">
-                          {/* Avatar */}
-                          <div
-                            className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-2xl font-bold shadow-inner relative"
-                            style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
-                          >
-                            {player.avatarUrl ? (
-                              <img
-                                src={player.avatarUrl}
-                                alt={player.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              player.avatar
-                            )}
+                      <div className="flex items-center justify-between relative z-10 gap-4">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          {/* Premium Avatar Container */}
+                          <div className="relative flex-shrink-0">
                             {isLeader && (
-                              <span className="absolute -top-1 -right-1 bg-amber-500 text-black p-0.5 rounded-full shadow-md">
-                                <Trophy size={10} fill="currentColor" />
-                              </span>
+                              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                                <Crown size={22} className="text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" />
+                              </div>
                             )}
+                            
+                            {/* Gradient Border Ring */}
+                            <div
+                              className={`rounded-full p-1 transition-all duration-300 ${
+                                isLeader 
+                                  ? "bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 animate-pulse" 
+                                  : "bg-gradient-to-tr from-zinc-800 to-zinc-700"
+                              }`}
+                              style={!isLeader ? { backgroundImage: `linear-gradient(to top right, ${player.color}, #27272a)` } : {}}
+                            >
+                              <div
+                                className={`rounded-full overflow-hidden flex items-center justify-center font-bold shadow-2xl relative transition-all duration-300 ${
+                                  isLeader ? "w-18 h-18 text-4xl" : "w-16 h-16 text-3xl"
+                                }`}
+                                style={{ backgroundColor: `${player.color}15` }}
+                              >
+                                {player.avatarUrl ? (
+                                  <img
+                                    src={player.avatarUrl}
+                                    alt={player.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  player.avatar
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Position Badge */}
+                            <span className={`absolute -bottom-1 -right-1 text-[10px] font-black px-2 py-0.5 rounded-full border shadow-md z-10 ${
+                              isLeader 
+                                ? "bg-amber-500 text-black border-amber-400" 
+                                : "bg-zinc-900 text-zinc-300 border-zinc-800"
+                            }`}>
+                              #{idx + 1}
+                            </span>
                           </div>
 
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <h3 className="font-bold text-sm text-white">{player.name}</h3>
+                          {/* Player Info */}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className={`font-black tracking-tight truncate ${
+                                isLeader ? "text-base text-amber-300" : "text-sm text-white"
+                              }`}>
+                                {player.name}
+                              </h3>
                               {player.reentries > 0 && (
-                                <span className="text-[9px] font-bold bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-full">
+                                <span className="text-[9px] font-black bg-zinc-800/90 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700/50">
                                   {player.reentries} Reentr.
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-zinc-400">
-                              Posição #{idx + 1}
+                            <p className="text-xs text-zinc-400 mt-1 font-medium">
+                              {isLeader ? "👑 Líder da Mesa" : `Atrás do líder por ${player.totalScore - leader!.totalScore} pts`}
                             </p>
                           </div>
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right">
-                          <span className="text-2xl font-black tracking-tight text-white">
+                        <div className="text-right flex-shrink-0 bg-zinc-950/40 border border-zinc-800/50 rounded-2xl px-4 py-2.5 min-w-[75px]">
+                          <span className={`text-3xl font-black tracking-tight block leading-none ${
+                            isLeader ? "text-amber-400" : "text-white"
+                          }`}>
                             {player.totalScore}
                           </span>
-                          <span className="text-[10px] text-zinc-500 block">pontos</span>
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mt-1">pontos</span>
                         </div>
                       </div>
                     </div>
