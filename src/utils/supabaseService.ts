@@ -16,12 +16,13 @@ export function generateUUID(): string {
 // Helper to check if Supabase is reachable and tables exist
 export async function checkSupabaseConnection(): Promise<boolean> {
   try {
-    const { error } = await supabase.from("players").select("id").limit(1);
+    console.log("[Supabase Connection] Checking connection...");
+    const { data, error } = await supabase.from("players").select("id").limit(1);
     if (error) {
       console.error("[Supabase Connection] Failed:", error);
       return false;
     }
-    console.log("[Supabase Connection] Successful!");
+    console.log("[Supabase Connection] Successful! Response data:", data);
     return true;
   } catch (err) {
     console.error("[Supabase Connection] Error:", err);
@@ -48,7 +49,7 @@ export async function uploadPlayerAvatar(playerId: string, file: File): Promise<
       fileSize: file.size
     });
 
-    const SUPABASE_URL = "https://czwcdqmxmkaofmolknvt.supabase.co";
+    const SUPABASE_URL = "https://czwcdqkxmkaofmolknvt.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6d2NkcWt4bWthb2Ztb2xrbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Nzc2NDUsImV4cCI6MjA5NTA1MzY0NX0.EvPgrG9_y0SR0KEqv1Aj5a4H-cT4pPYdcn2rbFuQxnw";
 
     // Upload file using standard fetch to Supabase Storage API
@@ -103,17 +104,38 @@ export async function fetchRegisteredPlayers(): Promise<RegisteredPlayer[]> {
     console.log("[Supabase] Fetch players response:", data);
 
     if (data) {
-      return data.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        avatar: p.avatar,
-        avatarUrl: p.avatar_url || undefined,
-        color: p.color || "#EF4444",
-        createdAt: new Date(p.created_at).getTime(),
-        gamesPlayed: p.matches_played || 0,
-        wins: p.victories || 0,
-        winRate: p.win_rate || 0,
-      }));
+      return data.map((p: any) => {
+        let avatar = "🃏";
+        let color = "#EF4444";
+        let avatarUrl: string | undefined = undefined;
+
+        if (p.avatar_url) {
+          if (p.avatar_url.startsWith("{")) {
+            try {
+              const parsed = JSON.parse(p.avatar_url);
+              avatar = parsed.emoji || "🃏";
+              color = parsed.color || "#EF4444";
+              avatarUrl = parsed.url || undefined;
+            } catch {
+              avatarUrl = p.avatar_url;
+            }
+          } else {
+            avatarUrl = p.avatar_url;
+          }
+        }
+
+        return {
+          id: p.id,
+          name: p.name,
+          avatar,
+          avatarUrl,
+          color,
+          createdAt: new Date(p.created_at || Date.now()).getTime(),
+          gamesPlayed: p.matches_played || 0,
+          wins: p.victories || 0,
+          winRate: p.win_rate || 0,
+        };
+      });
     }
   } catch (err) {
     console.warn("[Supabase] Falling back to localStorage for players:", err);
@@ -147,13 +169,19 @@ export async function isPlayerNameDuplicate(name: string, excludeId?: string): P
 export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<boolean> {
   try {
     console.log("[Supabase] Inserting player:", player);
+    
+    // Encode custom fields (emoji and color) into avatar_url column to match existing schema
+    const encodedAvatarUrl = JSON.stringify({
+      emoji: player.avatar,
+      color: player.color,
+      url: player.avatarUrl || null
+    });
+
     const { error } = await supabase.from("players").insert([
       {
         id: player.id,
         name: player.name,
-        avatar: player.avatar,
-        avatar_url: player.avatarUrl || null,
-        color: player.color,
+        avatar_url: encodedAvatarUrl,
         matches_played: player.gamesPlayed || 0,
         victories: player.wins || 0,
         win_rate: player.winRate || 0,
@@ -176,13 +204,19 @@ export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<
 export async function updateRegisteredPlayer(player: RegisteredPlayer): Promise<boolean> {
   try {
     console.log("[Supabase] Updating player:", player);
+    
+    // Encode custom fields (emoji and color) into avatar_url column to match existing schema
+    const encodedAvatarUrl = JSON.stringify({
+      emoji: player.avatar,
+      color: player.color,
+      url: player.avatarUrl || null
+    });
+
     const { error } = await supabase
       .from("players")
       .update({
         name: player.name,
-        avatar: player.avatar,
-        avatar_url: player.avatarUrl || null,
-        color: player.color,
+        avatar_url: encodedAvatarUrl,
         updated_at: new Date().toISOString(),
       })
       .eq("id", player.id);
@@ -308,12 +342,13 @@ export async function insertMatch(match: Match): Promise<boolean> {
     for (const p of match.players) {
       const isWinner = match.winnerId === p.id;
       
-      // Fetch current stats to increment correctly
-      const { data: currentPlayerData } = await supabase
+      // Fetch current stats to increment correctly (avoiding unsupported .single() call)
+      const { data: playersData } = await supabase
         .from("players")
         .select("matches_played, victories")
-        .eq("id", p.id)
-        .single();
+        .eq("id", p.id);
+
+      const currentPlayerData = playersData && playersData.length > 0 ? playersData[0] : null;
 
       if (currentPlayerData) {
         const newMatchesPlayed = (currentPlayerData.matches_played || 0) + 1;
