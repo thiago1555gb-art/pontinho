@@ -147,7 +147,7 @@ export default function Index() {
       setIsOnline(true);
       showSuccess("Jogador cadastrado com sucesso!");
     } else {
-      showSuccess("Jogador salvo localmente (offline)");
+      showSuccess("Jogador saved localmente (offline)");
     }
   };
 
@@ -657,7 +657,7 @@ export default function Index() {
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
+                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
                         isLeader
                           ? "border-amber-500/50 bg-gradient-to-r from-zinc-900/90 to-amber-950/20"
                           : "border-zinc-800/60"
@@ -672,19 +672,19 @@ export default function Index() {
                         style={{ width: `${progress}%` }}
                       />
 
-                      <div className="flex items-center justify-between relative z-10 gap-4">
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="flex items-center justify-between relative z-10 gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
                           {/* Premium Avatar Container */}
                           <div className="relative flex-shrink-0">
                             {isLeader && (
-                              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                                <Crown size={22} className="text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" />
+                              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                                <Crown size={18} className="text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" />
                               </div>
                             )}
                             
                             {/* Gradient Border Ring */}
                             <div
-                              className={`rounded-full p-1 transition-all duration-300 ${
+                              className={`rounded-full p-0.5 transition-all duration-300 ${
                                 isLeader 
                                   ? "bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 animate-pulse" 
                                   : "bg-gradient-to-tr from-zinc-800 to-zinc-700"
@@ -693,7 +693,7 @@ export default function Index() {
                             >
                               <div
                                 className={`rounded-full overflow-hidden flex items-center justify-center font-bold shadow-2xl relative transition-all duration-300 ${
-                                  isLeader ? "w-18 h-18 text-4xl" : "w-16 h-16 text-3xl"
+                                  isLeader ? "w-14 h-14 text-2xl" : "w-12 h-12 text-xl"
                                 }`}
                                 style={{ backgroundColor: `${player.color}15` }}
                               >
@@ -710,7 +710,7 @@ export default function Index() {
                             </div>
 
                             {/* Position Badge */}
-                            <span className={`absolute -bottom-1 -right-1 text-[10px] font-black px-2 py-0.5 rounded-full border shadow-md z-10 ${
+                            <span className={`absolute -bottom-1 -right-1 text-[9px] font-black px-1.5 py-0.5 rounded-full border shadow-md z-10 ${
                               isLeader 
                                 ? "bg-amber-500 text-black border-amber-400" 
                                 : "bg-zinc-900 text-zinc-300 border-zinc-800"
@@ -721,32 +721,32 @@ export default function Index() {
 
                           {/* Player Info */}
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <h3 className={`font-black tracking-tight truncate ${
-                                isLeader ? "text-base text-amber-300" : "text-sm text-white"
+                                isLeader ? "text-sm text-amber-300" : "text-xs text-white"
                               }`}>
                                 {player.name}
                               </h3>
                               {player.reentries > 0 && (
-                                <span className="text-[9px] font-black bg-zinc-800/90 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700/50">
+                                <span className="text-[8px] font-black bg-zinc-800/90 text-zinc-400 px-1.5 py-0.5 rounded-full border border-zinc-700/50">
                                   {player.reentries} Reentr.
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-zinc-400 mt-1 font-medium">
+                            <p className="text-[10px] text-zinc-400 mt-0.5 font-medium">
                               {isLeader ? "👑 Líder da Mesa" : `Atrás do líder por ${player.totalScore - leader!.totalScore} pts`}
                             </p>
                           </div>
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right flex-shrink-0 bg-zinc-950/40 border border-zinc-800/50 rounded-2xl px-4 py-2.5 min-w-[75px]">
-                          <span className={`text-3xl font-black tracking-tight block leading-none ${
+                        <div className="text-right flex-shrink-0 bg-zinc-950/40 border border-zinc-800/50 rounded-xl px-3 py-1.5 min-w-[65px]">
+                          <span className={`text-2xl font-black tracking-tight block leading-none ${
                             isLeader ? "text-amber-400" : "text-white"
                           }`}>
                             {player.totalScore}
                           </span>
-                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mt-1">pontos</span>
+                          <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-wider block mt-0.5">pontos</span>
                         </div>
                       </div>
                     </div>
