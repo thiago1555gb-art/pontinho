@@ -145,7 +145,7 @@ export default function Index() {
       setIsOnline(true);
       showSuccess("Jogador cadastrado com sucesso!");
     } else {
-      showSuccess("Jogador salvo localmente (offline)");
+      showSuccess("Jogador saved localmente (offline)");
     }
   };
 
@@ -530,39 +530,39 @@ export default function Index() {
 
       {/* Main Content Container */}
       <main className="max-w-md mx-auto px-4 pt-6 space-y-6 relative z-10">
-        {/* Navigation Tabs - Styled like overlapping cards */}
-        <div className="grid grid-cols-3 gap-1 bg-black/30 p-1 rounded-2xl border border-[#D4AF37]/20">
+        {/* Navigation Tabs - Styled like overlapping premium playing cards */}
+        <div className="grid grid-cols-3 gap-2 bg-black/40 p-1.5 rounded-2xl border border-[#D4AF37]/30 shadow-2xl">
           <button
             onClick={() => { sounds.playClick(); setActiveTab("game"); }}
-            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all font-sans ${
+            className={`py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
               activeTab === "game"
-                ? "bg-[#FFFDF9] text-zinc-900 shadow-md border border-[#D4AF37]"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-[#FFFDF9] text-zinc-900 shadow-[0_4px_15px_rgba(0,0,0,0.4)] border-2 border-[#D4AF37] scale-105 z-10"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
             }`}
           >
-            <Gamepad2 size={14} />
+            <span className={activeTab === "game" ? "text-zinc-900" : "text-zinc-500"}>♠</span>
             Mesa
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("players"); }}
-            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all font-sans ${
+            className={`py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
               activeTab === "players"
-                ? "bg-[#FFFDF9] text-zinc-900 shadow-md border border-[#D4AF37]"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-[#FFFDF9] text-zinc-900 shadow-[0_4px_15px_rgba(0,0,0,0.4)] border-2 border-[#D4AF37] scale-105 z-10"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
             }`}
           >
-            <Users size={14} />
+            <span className={activeTab === "players" ? "text-red-600" : "text-zinc-500"}>♥</span>
             Membros
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("stats"); }}
-            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all font-sans ${
+            className={`py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
               activeTab === "stats"
-                ? "bg-[#FFFDF9] text-zinc-900 shadow-md border border-[#D4AF37]"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-[#FFFDF9] text-zinc-900 shadow-[0_4px_15px_rgba(0,0,0,0.4)] border-2 border-[#D4AF37] scale-105 z-10"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
             }`}
           >
-            <BarChart3 size={14} />
+            <span className={activeTab === "stats" ? "text-red-600" : "text-zinc-500"}>♦</span>
             Placar
           </button>
         </div>
