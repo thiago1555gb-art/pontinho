@@ -117,7 +117,6 @@ export default function Index() {
 
   // Player Database Actions
   const handleAddPlayer = async (name: string, color: string, avatar: string, avatarUrl?: string) => {
-    // Check for duplicate name
     const isDuplicate = await isPlayerNameDuplicate(name);
     if (isDuplicate) {
       showError("Já existe um jogador cadastrado com este nome!");
@@ -141,7 +140,6 @@ export default function Index() {
     setRegisteredPlayers(updated);
     localStorage.setItem("pontinho_registered_players", JSON.stringify(updated));
 
-    // Sync to Supabase
     const success = await insertRegisteredPlayer(newPlayer);
     if (success) {
       setIsOnline(true);
@@ -152,7 +150,6 @@ export default function Index() {
   };
 
   const handleEditPlayer = async (id: string, name: string, color: string, avatar: string, avatarUrl?: string) => {
-    // Check for duplicate name excluding current player
     const isDuplicate = await isPlayerNameDuplicate(name, id);
     if (isDuplicate) {
       showError("Já existe outro jogador com este nome!");
@@ -177,7 +174,6 @@ export default function Index() {
     setRegisteredPlayers(updated);
     localStorage.setItem("pontinho_registered_players", JSON.stringify(updated));
 
-    // Sync to Supabase
     const success = await updateRegisteredPlayer(updatedPlayer);
     if (success) {
       setIsOnline(true);
@@ -192,7 +188,6 @@ export default function Index() {
     setRegisteredPlayers(updated);
     localStorage.setItem("pontinho_registered_players", JSON.stringify(updated));
 
-    // Sync to Supabase
     const success = await deleteRegisteredPlayer(id);
     if (success) {
       setIsOnline(true);
@@ -208,7 +203,6 @@ export default function Index() {
       timerRef.current = setInterval(() => {
         setTimer((prev) => {
           const next = prev + 1;
-          // Periodically save duration
           if (next % 5 === 0 && currentMatch) {
             const updated = { ...currentMatch, duration: next };
             setCurrentMatch(updated);
@@ -287,7 +281,6 @@ export default function Index() {
       const newScores = [...player.scores, addedPoints];
       const newTotal = player.totalScore + addedPoints;
 
-      // Check if player burst (estourou) - Eliminated if total is equal or greater than limitScore
       const isEliminated = newTotal >= currentMatch.limitScore;
 
       if (isEliminated) {
@@ -302,7 +295,6 @@ export default function Index() {
       };
     });
 
-    // Check if match is finished (only 1 player remains active)
     const activePlayers = updatedPlayers.filter((p) => !p.isEliminated);
     const isFinished = activePlayers.length <= 1;
     const winnerId = isFinished && activePlayers.length === 1 ? activePlayers[0].id : undefined;
@@ -333,13 +325,11 @@ export default function Index() {
       setMatches(updatedMatches);
       localStorage.setItem("pontinho_matches", JSON.stringify(updatedMatches));
 
-      // Sync completed match to Supabase
       const success = await insertMatch(updatedMatch);
       if (success) {
         setIsOnline(true);
         showSuccess("Partida finalizada e salva na nuvem!");
         
-        // Refresh players list to get updated stats
         const players = await fetchRegisteredPlayers();
         setRegisteredPlayers(players);
         localStorage.setItem("pontinho_registered_players", JSON.stringify(players));
@@ -356,7 +346,6 @@ export default function Index() {
     if (!currentMatch) return;
     sounds.playCrown();
 
-    // Find the highest score among active players who haven't burst
     const activeScores = currentMatch.players
       .filter((p) => !p.isEliminated)
       .map((p) => p.totalScore);
@@ -365,7 +354,6 @@ export default function Index() {
 
     const updatedPlayers = currentMatch.players.map((player) => {
       if (player.id === playerId) {
-        // Reenter with the highest active score
         const addedPoints = highestActiveScore - player.totalScore;
         return {
           ...player,
@@ -402,7 +390,7 @@ export default function Index() {
         ...player,
         scores: newScores,
         totalScore: newTotal,
-        isEliminated: newTotal >= currentMatch.limitScore, // Recalculate elimination on undo
+        isEliminated: newTotal >= currentMatch.limitScore,
       };
     });
 
@@ -439,40 +427,44 @@ export default function Index() {
 
   const leader = getLeader();
 
-  // Theme styling helper - refined to be elegant and cinematic
+  // Bespoke Theme Styling - "The Velvet Club"
   const getThemeClasses = () => {
     switch (settings.theme) {
       case "casino-green":
         return {
-          bg: "bg-[#080A0F]",
-          accent: "text-emerald-400",
-          border: "border-emerald-950/40",
-          button: "bg-emerald-500 hover:bg-emerald-400 text-black",
-          glow: "shadow-emerald-950/20",
+          bg: "bg-[#071410]", // Deep British Racing Green felt
+          card: "bg-[#0d221b]",
+          border: "border-[#163a2e]",
+          accent: "text-[#e5c158]", // Champagne Gold
+          button: "bg-[#e5c158] text-[#071410] hover:bg-[#f0d580]",
+          textMuted: "text-[#8fa39e]",
         };
       case "poker-red":
         return {
-          bg: "bg-[#0A0808]",
-          accent: "text-red-400",
-          border: "border-red-950/40",
-          button: "bg-red-500 hover:bg-red-400 text-white",
-          glow: "shadow-red-950/20",
+          bg: "bg-[#140707]", // Deep Burgundy felt
+          card: "bg-[#220d0d]",
+          border: "border-[#3a1616]",
+          accent: "text-[#e5c158]",
+          button: "bg-[#e5c158] text-[#140707] hover:bg-[#f0d580]",
+          textMuted: "text-[#a38f8f]",
         };
       case "midnight-blue":
         return {
-          bg: "bg-[#08090F]",
-          accent: "text-blue-400",
-          border: "border-blue-950/40",
-          button: "bg-blue-500 hover:bg-blue-400 text-white",
-          glow: "shadow-blue-950/20",
+          bg: "bg-[#070b14]", // Deep Midnight Navy felt
+          card: "bg-[#0d1322]",
+          border: "border-[#16203a]",
+          accent: "text-[#e5c158]",
+          button: "bg-[#e5c158] text-[#070b14] hover:bg-[#f0d580]",
+          textMuted: "text-[#8f9aa3]",
         };
       case "obsidian":
         return {
-          bg: "bg-[#09080F]",
-          accent: "text-purple-400",
-          border: "border-purple-950/40",
-          button: "bg-purple-500 hover:bg-purple-400 text-white",
-          glow: "shadow-purple-950/20",
+          bg: "bg-[#0c0714]", // Deep Amethyst Obsidian felt
+          card: "bg-[#150d22]",
+          border: "border-[#24163a]",
+          accent: "text-[#e5c158]",
+          button: "bg-[#e5c158] text-[#0c0714] hover:bg-[#f0d580]",
+          textMuted: "text-[#988fa3]",
         };
     }
   };
@@ -493,30 +485,30 @@ export default function Index() {
     : [];
 
   return (
-    <div className={`min-h-screen ${themeStyles.bg} text-zinc-100 font-sans relative overflow-x-hidden pb-28 transition-colors duration-500`}>
+    <div className={`min-h-screen ${themeStyles.bg} text-[#f4f1ea] font-sans relative overflow-x-hidden pb-28 transition-colors duration-500`}>
       {/* Background Particles */}
       <BackgroundParticles theme={settings.theme} />
 
       {/* Confetti on Victory */}
       <Confetti active={!!(currentMatch && currentMatch.isFinished)} />
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#0B0C10]/80 backdrop-blur-md border-b border-zinc-900/80 px-4 py-4">
+      {/* Header - Styled like a premium club scoreboard */}
+      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-md border-b border-white/5 px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-sm">
-              <Gamepad2 size={18} className="text-zinc-300" />
+            <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+              <span className={`font-serif text-lg font-bold ${themeStyles.accent}`}>♠</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold tracking-tight text-white">Baioia</h1>
+                <h1 className="text-lg font-serif font-bold tracking-wide text-[#f4f1ea]">O Clube</h1>
                 {isOnline ? (
-                  <span className="flex h-2 w-2 relative" title="Supabase Conectado">
+                  <span className="flex h-1.5 w-1.5 relative" title="Sincronizado">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                   </span>
                 ) : (
-                  <span className="h-2 w-2 rounded-full bg-zinc-700" title="Modo Local / Offline"></span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" title="Modo Local"></span>
                 )}
               </div>
             </div>
@@ -526,7 +518,7 @@ export default function Index() {
             {/* Sound Toggle */}
             <button
               onClick={toggleSound}
-              className="p-2 rounded-xl bg-zinc-900/50 border border-zinc-800/60 text-zinc-400 hover:text-white transition-all active:scale-95"
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white transition-all active:scale-95"
             >
               {settings.soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
@@ -535,7 +527,7 @@ export default function Index() {
             {currentMatch && (
               <button
                 onClick={() => { sounds.playClick(); setShowResetConfirm(true); }}
-                className="p-2 rounded-xl bg-zinc-900/50 border border-zinc-800/60 text-zinc-400 hover:text-red-400 transition-all active:scale-95"
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-red-400 transition-all active:scale-95"
                 title="Reiniciar Partida"
               >
                 <RotateCcw size={16} />
@@ -547,40 +539,40 @@ export default function Index() {
 
       {/* Main Content Container */}
       <main className="max-w-md mx-auto px-4 pt-6 space-y-6 relative z-10">
-        {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 gap-1 bg-zinc-950/80 p-1 rounded-2xl border border-zinc-900/60">
+        {/* Navigation Tabs - Custom leather/felt toggle style */}
+        <div className="grid grid-cols-3 gap-1 bg-black/30 p-1 rounded-2xl border border-white/5">
           <button
             onClick={() => { sounds.playClick(); setActiveTab("game"); }}
-            className={`py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all ${
               activeTab === "game"
-                ? "bg-zinc-900 text-white shadow-sm border border-zinc-800/50"
+                ? "bg-white/10 text-white shadow-sm border border-white/10"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Gamepad2 size={14} />
-            Partida
+            Mesa
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("players"); }}
-            className={`py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all ${
               activeTab === "players"
-                ? "bg-zinc-900 text-white shadow-sm border border-zinc-800/50"
+                ? "bg-white/10 text-white shadow-sm border border-white/10"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Users size={14} />
-            Jogadores
+            Membros
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("stats"); }}
-            className={`py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all ${
               activeTab === "stats"
-                ? "bg-zinc-900 text-white shadow-sm border border-zinc-800/50"
+                ? "bg-white/10 text-white shadow-sm border border-white/10"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <BarChart3 size={14} />
-            Estatísticas
+            Placar
           </button>
         </div>
 
@@ -601,35 +593,35 @@ export default function Index() {
         ) : !currentMatch ? (
           /* Empty State / Start Match */
           <div className="text-center py-16 space-y-8">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-zinc-950 border border-zinc-900 flex items-center justify-center shadow-sm">
-              <Sparkles size={32} className="text-zinc-400" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-black/20 border border-white/5 flex items-center justify-center shadow-inner">
+              <Sparkles size={32} className="text-zinc-500" />
             </div>
             <div className="space-y-3">
-              <h2 className="text-xl font-bold text-white tracking-tight">Nenhuma partida ativa</h2>
+              <h2 className="text-xl font-serif font-bold text-white tracking-wide">Nenhuma mesa ativa</h2>
               <p className="text-zinc-400 text-sm max-w-xs mx-auto leading-relaxed">
-                Inicie uma nova partida de Pontinho para acompanhar as pontuações em tempo real com um design limpo e profissional.
+                Abra uma nova mesa de Pontinho para começar a registrar as rodadas com a elegância de um clube privado.
               </p>
             </div>
             <button
               onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-              className="px-8 py-4 bg-white hover:bg-zinc-100 text-black font-bold rounded-2xl shadow-sm flex items-center justify-center gap-2.5 mx-auto transition-all transform active:scale-95 text-sm"
+              className={`px-8 py-4 ${themeStyles.button} font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2.5 mx-auto transition-all transform active:scale-95 text-sm`}
             >
               <Play size={15} fill="currentColor" />
-              Nova Partida
+              Abrir Mesa
             </button>
           </div>
         ) : (
           /* Active Match View */
           <div className="space-y-5">
-            {/* Match Info Bar */}
-            <div className="flex items-center justify-between bg-zinc-950/60 border border-zinc-900/60 rounded-2xl p-4">
+            {/* Match Info Bar - Styled like a luxury watch face / dashboard */}
+            <div className="flex items-center justify-between bg-black/20 border border-white/5 rounded-2xl p-4">
               <div className="flex items-center gap-2.5">
                 <Clock size={15} className="text-zinc-500" />
                 <span className="text-sm font-mono font-medium text-zinc-300">{formatTime(timer)}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold block">Limite de Pontos</span>
-                <span className="text-sm font-bold text-white">{currentMatch.limitScore} pts</span>
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block">Limite de Pontos</span>
+                <span className={`text-sm font-bold ${themeStyles.accent}`}>{currentMatch.limitScore} pts</span>
               </div>
             </div>
 
@@ -650,15 +642,15 @@ export default function Index() {
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-zinc-950/80 border rounded-2xl p-4 transition-all duration-300 ${
+                      className={`relative overflow-hidden ${themeStyles.card} border rounded-2xl p-4 transition-all duration-300 ${
                         isLeader
-                          ? "border-zinc-800 bg-gradient-to-r from-zinc-950 to-zinc-900/40"
-                          : "border-zinc-900/80"
+                          ? "border-white/10 bg-gradient-to-r from-white/5 to-transparent"
+                          : "border-white/5"
                       }`}
                     >
                       {/* Progress Bar Background - subtle and integrated */}
                       <div
-                        className="absolute bottom-0 left-0 h-1 bg-zinc-800 transition-all duration-500"
+                        className="absolute bottom-0 left-0 h-1 bg-white/5 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
 
@@ -668,17 +660,17 @@ export default function Index() {
                           <div className="relative flex-shrink-0">
                             {isLeader && (
                               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                                <Crown size={16} className="text-amber-400 fill-amber-400" />
+                                <Crown size={16} className="text-[#e5c158] fill-[#e5c158]" />
                               </div>
                             )}
                             
                             {/* Clean Border Ring */}
                             <div
-                              className="rounded-full p-0.5 bg-zinc-900 border border-zinc-800"
+                              className="rounded-full p-0.5 bg-black/40 border border-white/10"
                               style={{ borderColor: player.color }}
                             >
                               <div
-                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-14 h-14 text-2xl bg-zinc-950"
+                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-14 h-14 text-2xl bg-black/20"
                               >
                                 {player.avatarUrl ? (
                                   <img
@@ -693,7 +685,7 @@ export default function Index() {
                             </div>
 
                             {/* Position Badge */}
-                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800 shadow-sm">
+                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black text-zinc-400 border border-white/10 shadow-sm">
                               #{idx + 1}
                             </span>
                           </div>
@@ -705,7 +697,7 @@ export default function Index() {
                                 {player.name}
                               </h3>
                               {player.reentries > 0 && (
-                                <span className="text-[9px] font-semibold bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-800">
+                                <span className="text-[9px] font-semibold bg-white/5 text-zinc-400 px-2 py-0.5 rounded-full border border-white/5">
                                   {player.reentries} Reentr.
                                 </span>
                               )}
@@ -717,7 +709,7 @@ export default function Index() {
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right flex-shrink-0 bg-zinc-900/40 border border-zinc-800/60 rounded-xl px-4 py-2.5 min-w-[75px]">
+                        <div className="text-right flex-shrink-0 bg-black/20 border border-white/5 rounded-xl px-4 py-2.5 min-w-[75px]">
                           <span className="text-2xl font-mono font-bold tracking-tight block leading-none text-white">
                             {player.totalScore}
                           </span>
@@ -742,13 +734,13 @@ export default function Index() {
                     return (
                       <div
                         key={player.id}
-                        className="relative overflow-hidden bg-zinc-950/40 border border-zinc-900/50 rounded-2xl p-4 opacity-60"
+                        className="relative overflow-hidden bg-black/10 border border-white/5 rounded-2xl p-4 opacity-60"
                       >
                         <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3.5">
                             {/* Avatar */}
                             <div
-                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-zinc-900 border border-zinc-800 relative"
+                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-black/40 border border-white/5 relative"
                             >
                               {player.avatarUrl ? (
                                 <img
@@ -759,7 +751,7 @@ export default function Index() {
                               ) : (
                                 player.avatar
                               )}
-                              <span className="absolute -bottom-1 -right-1 bg-zinc-800 text-zinc-400 p-0.5 rounded-full border border-zinc-700">
+                              <span className="absolute -bottom-1 -right-1 bg-zinc-800 text-zinc-400 p-0.5 rounded-full border border-white/5">
                                 <Skull size={10} />
                               </span>
                             </div>
@@ -767,7 +759,7 @@ export default function Index() {
                             <div>
                               <div className="flex items-center gap-2">
                                 <h3 className="font-bold text-sm text-zinc-400 line-through">{player.name}</h3>
-                                <span className="text-[9px] font-semibold bg-zinc-900 text-zinc-500 border border-zinc-800 px-2 py-0.5 rounded-full">
+                                <span className="text-[9px] font-semibold bg-black/40 text-zinc-500 border border-white/5 px-2 py-0.5 rounded-full">
                                   ELIMINADO
                                 </span>
                               </div>
@@ -782,7 +774,7 @@ export default function Index() {
                             {settings.allowReentry && !currentMatch.isFinished && (
                               <button
                                 onClick={() => handleReentry(player.id)}
-                                className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl text-xs font-semibold transition-all active:scale-95"
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 rounded-xl text-xs font-semibold transition-all active:scale-95"
                               >
                                 <RefreshCw size={12} />
                                 Reentrar
@@ -811,7 +803,7 @@ export default function Index() {
               <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 w-full max-w-xs px-4">
                 <button
                   onClick={() => { sounds.playClick(); setIsAddScoreOpen(true); }}
-                  className="w-full py-4 bg-white hover:bg-zinc-100 text-black font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm"
+                  className={`w-full py-4 ${themeStyles.button} font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm`}
                 >
                   <Plus size={18} />
                   Adicionar Rodada
@@ -821,8 +813,8 @@ export default function Index() {
 
             {/* Victory Screen Overlay */}
             {currentMatch.isFinished && (
-              <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-6 text-center space-y-5 shadow-xl">
-                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border border-zinc-800 shadow-sm relative">
+              <div className="bg-black/40 border border-white/5 rounded-3xl p-6 text-center space-y-5 shadow-xl">
+                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border border-white/10 shadow-sm relative">
                   {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl ? (
                     <img
                       src={currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl}
@@ -830,7 +822,7 @@ export default function Index() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-3xl bg-zinc-900 text-zinc-300">
+                    <div className="w-full h-full flex items-center justify-center text-3xl bg-black/40 text-zinc-300">
                       <Trophy size={28} />
                     </div>
                   )}
@@ -844,7 +836,7 @@ export default function Index() {
                 </div>
                 <button
                   onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-                  className="w-full py-3.5 bg-white hover:bg-zinc-100 text-black font-bold rounded-xl transition-all transform active:scale-95 text-sm"
+                  className={`w-full py-3.5 ${themeStyles.button} font-bold rounded-xl transition-all transform active:scale-95 text-sm`}
                 >
                   Jogar Novamente
                 </button>
