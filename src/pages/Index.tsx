@@ -490,7 +490,7 @@ export default function Index() {
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#FFFDF9] border-2 border-[#D4AF37] flex items-center justify-center shadow-md">
-              <span className="font-serif text-xl font-bold text-red-600">A</span>
+              <span className="font-serif text-2xl font-bold text-zinc-900">♠</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
