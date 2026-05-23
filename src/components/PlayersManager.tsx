@@ -139,16 +139,16 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
   return (
     <div className="space-y-6">
       {/* Add/Edit Form */}
-      <form onSubmit={handleSubmit} className="bg-zinc-950/80 border border-zinc-900/60 rounded-2xl p-5 space-y-5">
-        <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-          <UserPlus size={14} className="text-zinc-400" />
+      <form onSubmit={handleSubmit} className="bg-[#F5F1EA] border border-[#1C1C1C]/10 rounded-2xl p-5 space-y-5">
+        <h3 className="text-xs font-bold text-[#1C1C1C] uppercase tracking-wider flex items-center gap-2">
+          <UserPlus size={14} className="text-[#1C1C1C]" />
           {editingId ? "Editar Jogador" : "Cadastrar Novo Jogador"}
         </h3>
 
         <div className="space-y-4">
           {/* Photo Upload Area */}
           <div>
-            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Foto de Perfil (Opcional)</label>
+            <label className="block text-[10px] font-bold text-[#5C5A55] uppercase tracking-wider mb-2">Foto de Perfil (Opcional)</label>
             <div
               onDragEnter={handleDrag}
               onDragOver={handleDrag}
@@ -157,8 +157,8 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
               onClick={() => fileInputRef.current?.click()}
               className={`relative border border-dashed rounded-2xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                 dragActive
-                  ? "border-white bg-zinc-900/40"
-                  : "border-zinc-800 hover:border-zinc-700 bg-zinc-950"
+                  ? "border-[#1C1C1C] bg-[#FAF8F5]"
+                  : "border-[#1C1C1C]/10 hover:border-[#1C1C1C]/30 bg-[#FAF8F5]"
               }`}
             >
               <input
@@ -171,12 +171,12 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
 
               {isUploading ? (
                 <div className="flex flex-col items-center gap-2 py-2">
-                  <Loader2 className="animate-spin text-zinc-400" size={20} />
-                  <span className="text-xs text-zinc-500">Enviando imagem...</span>
+                  <Loader2 className="animate-spin text-[#1C1C1C]" size={20} />
+                  <span className="text-xs text-[#5C5A55]">Enviando imagem...</span>
                 </div>
               ) : avatarUrl ? (
                 <div className="flex items-center gap-4 w-full" onClick={(e) => e.stopPropagation()}>
-                  <div className="relative w-14 h-14 rounded-full overflow-hidden border border-zinc-800 shadow-sm">
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border border-[#1C1C1C]/10 shadow-sm">
                     <img
                       src={avatarUrl}
                       alt="Preview"
@@ -184,48 +184,48 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                     />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="text-xs font-bold text-white">Foto carregada!</p>
-                    <p className="text-[10px] text-zinc-500">Pronta para salvar</p>
+                    <p className="text-xs font-bold text-[#1C1C1C]">Foto carregada!</p>
+                    <p className="text-[10px] text-[#5C5A55]">Pronta para salvar</p>
                   </div>
                   <button
                     type="button"
                     onClick={removePhoto}
-                    className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 rounded-xl transition-colors text-xs font-semibold"
+                    className="px-3 py-1.5 bg-[#FAF8F5] hover:bg-[#F5F1EA] text-[#5C5A55] hover:text-[#1C1C1C] border border-[#1C1C1C]/10 rounded-xl transition-colors text-xs font-semibold"
                   >
                     Remover
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-1.5 py-2 text-center">
-                  <div className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-500 border border-zinc-800">
+                  <div className="w-9 h-9 rounded-full bg-[#FAF8F5] flex items-center justify-center text-[#5C5A55] border border-[#1C1C1C]/10">
                     <Upload size={15} />
                   </div>
-                  <span className="text-xs font-semibold text-zinc-300">Arraste ou clique para enviar</span>
-                  <span className="text-[10px] text-zinc-500">JPG, PNG ou WEBP (Máx. 2MB)</span>
+                  <span className="text-xs font-semibold text-[#1C1C1C]">Arraste ou clique para enviar</span>
+                  <span className="text-[10px] text-[#5C5A55]">JPG, PNG ou WEBP (Máx. 2MB)</span>
                 </div>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Nome do Jogador</label>
+            <label className="block text-[10px] font-bold text-[#5C5A55] uppercase tracking-wider mb-2">Nome do Jogador</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Thiago, Maria..."
               maxLength={16}
-              className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-zinc-700 transition-colors"
+              className="w-full bg-[#FAF8F5] border border-[#1C1C1C]/10 rounded-xl px-4 py-3 text-[#1C1C1C] text-sm focus:outline-none focus:border-[#1C1C1C]/30 transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Avatar / Emoji</label>
+              <label className="block text-[10px] font-bold text-[#5C5A55] uppercase tracking-wider mb-2">Avatar / Emoji</label>
               <select
                 value={avatar}
                 onChange={(e) => { sounds.playClick(); setAvatar(e.target.value); }}
-                className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-3 py-3 text-white text-sm focus:outline-none focus:border-zinc-700"
+                className="w-full bg-[#FAF8F5] border border-[#1C1C1C]/10 rounded-xl px-3 py-3 text-[#1C1C1C] text-sm focus:outline-none focus:border-[#1C1C1C]/30"
               >
                 {PRESET_EMOJIS.map((emoji) => (
                   <option key={emoji} value={emoji}>{emoji} {emoji === avatar ? "(Selecionado)" : ""}</option>
@@ -234,7 +234,7 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Cor de Destaque</label>
+              <label className="block text-[10px] font-bold text-[#5C5A55] uppercase tracking-wider mb-2">Cor de Destaque</label>
               <div className="flex items-center gap-1.5 h-11">
                 {PRESET_COLORS.slice(0, 6).map((c) => (
                   <button
@@ -242,7 +242,7 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                     type="button"
                     onClick={() => { sounds.playClick(); setColor(c); }}
                     className={`w-6 h-6 rounded-full border transition-transform ${
-                      color === c ? "scale-110 border-white" : "border-transparent"
+                      color === c ? "scale-110 border-[#1C1C1C]" : "border-transparent"
                     }`}
                     style={{ backgroundColor: c }}
                   />
@@ -256,7 +256,7 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
           <button
             type="submit"
             disabled={!name.trim() || isUploading}
-            className="flex-1 py-3.5 bg-white hover:bg-zinc-100 disabled:opacity-50 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-sm"
+            className="flex-1 py-3.5 bg-[#1C1C1C] hover:bg-[#2D2D2D] disabled:opacity-50 text-[#FAF8F5] font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-sm"
           >
             <Check size={15} />
             {editingId ? "Salvar Alterações" : "Cadastrar Jogador"}
@@ -266,7 +266,7 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
             <button
               type="button"
               onClick={handleCancelEdit}
-              className="px-4 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-semibold rounded-xl transition-colors text-sm border border-zinc-800"
+              className="px-4 py-3.5 bg-[#FAF8F5] hover:bg-[#F5F1EA] text-[#5C5A55] font-semibold rounded-xl transition-colors text-sm border border-[#1C1C1C]/10"
             >
               Cancelar
             </button>
@@ -276,25 +276,25 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
 
       {/* Registered Players List */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider px-1">
+        <h3 className="text-xs font-bold text-[#5C5A55] uppercase tracking-wider px-1">
           Jogadores Cadastrados ({registeredPlayers.length})
         </h3>
 
         {registeredPlayers.length === 0 ? (
-          <div className="text-center py-10 bg-zinc-950/40 border border-zinc-900/50 rounded-2xl">
-            <p className="text-zinc-500 text-sm">Nenhum jogador cadastrado ainda.</p>
+          <div className="text-center py-10 bg-[#F5F1EA]/40 border border-[#1C1C1C]/10 rounded-2xl">
+            <p className="text-[#5C5A55] text-sm">Nenhum jogador cadastrado ainda.</p>
           </div>
         ) : (
           <div className="grid gap-2.5">
             {registeredPlayers.map((player) => (
               <div
                 key={player.id}
-                className="flex items-center justify-between bg-zinc-950/80 border border-zinc-900/60 p-3.5 rounded-2xl"
+                className="flex items-center justify-between bg-[#F5F1EA] border border-[#1C1C1C]/10 p-3.5 rounded-2xl"
               >
                 <div className="flex items-center gap-3.5">
                   {/* Circular Avatar with Fallback */}
                   <div
-                    className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-zinc-900 border border-zinc-800 relative"
+                    className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-[#FAF8F5] border border-[#1C1C1C]/10 relative"
                     style={{ borderColor: player.color }}
                   >
                     {player.avatarUrl ? (
@@ -308,8 +308,8 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                     )}
                   </div>
                   <div>
-                    <h4 className="text-white font-bold text-sm">{player.name}</h4>
-                    <p className="text-[10px] text-zinc-500 mt-0.5">
+                    <h4 className="text-[#1C1C1C] font-bold text-sm">{player.name}</h4>
+                    <p className="text-[10px] text-[#5C5A55] mt-0.5">
                       Cadastrado em {new Date(player.createdAt).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
@@ -318,14 +318,14 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleStartEdit(player)}
-                    className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors"
+                    className="p-2 text-[#5C5A55] hover:text-[#1C1C1C] hover:bg-[#FAF8F5] rounded-lg transition-colors"
                     title="Editar"
                   >
                     <Edit2 size={14} />
                   </button>
                   <button
                     onClick={() => { sounds.playElimination(); onDeletePlayer(player.id); }}
-                    className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                    className="p-2 text-[#5C5A55] hover:text-[#8C2D19] hover:bg-[#8C2D19]/10 rounded-lg transition-colors"
                     title="Excluir"
                   >
                     <Trash2 size={14} />
