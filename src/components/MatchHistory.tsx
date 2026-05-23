@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Match } from "../types/pontinho";
 import { sounds } from "../utils/audio";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { ChevronDown, ChevronUp, RotateCcw, History } from "lucide-react";
 
 interface MatchHistoryProps {
@@ -73,20 +74,13 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ match, onUndo }) => 
                       return (
                         <div key={player.id} className="flex items-center justify-between text-xs">
                           <span className="text-zinc-600 flex items-center gap-2">
-                            <div
-                              className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-bold bg-zinc-100 border border-zinc-200 relative"
-                              style={{ borderColor: player.color }}
-                            >
-                              {player.avatarUrl ? (
-                                <img
-                                  src={player.avatarUrl}
-                                  alt={player.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                player.avatar
-                              )}
-                            </div>
+                            <PlayerAvatar
+                              avatarUrl={player.avatarUrl}
+                              emoji={player.avatar}
+                              color={player.color}
+                              name={player.name}
+                              size="xs"
+                            />
                             <span className="truncate max-w-[80px] font-medium">{player.name}</span>
                           </span>
                           <span className={`font-mono font-bold ${score > 0 ? "text-red-600" : score < 0 ? "text-emerald-600" : "text-zinc-500"}`}>

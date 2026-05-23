@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { RegisteredPlayer } from "../types/pontinho";
 import { sounds } from "../utils/audio";
 import { uploadPlayerAvatar } from "../utils/supabaseService";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { Plus, Trash2, Edit2, UserPlus, Check, X, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
 import { showSuccess, showError } from "../utils/toast";
 
@@ -176,13 +177,13 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                 </div>
               ) : avatarUrl ? (
                 <div className="flex items-center gap-4 w-full" onClick={(e) => e.stopPropagation()}>
-                  <div className="relative w-14 h-14 rounded-full overflow-hidden border border-zinc-300 shadow-sm">
-                    <img
-                      src={avatarUrl}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <PlayerAvatar
+                    avatarUrl={avatarUrl}
+                    emoji={avatar}
+                    color={color}
+                    name="Preview"
+                    size="xl"
+                  />
                   <div className="flex-1 text-left">
                     <p className="text-xs font-bold text-zinc-900">Foto carregada!</p>
                     <p className="text-[10px] text-zinc-500">Pronta para salvar</p>
@@ -292,21 +293,13 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                 className="flex items-center justify-between bg-[#FFFDF9] border-2 border-zinc-300 p-3.5 rounded-2xl text-zinc-900 shadow-md"
               >
                 <div className="flex items-center gap-3.5">
-                  {/* Circular Avatar with Fallback */}
-                  <div
-                    className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-zinc-100 border border-zinc-300 relative"
-                    style={{ borderColor: player.color }}
-                  >
-                    {player.avatarUrl ? (
-                      <img
-                        src={player.avatarUrl}
-                        alt={player.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      player.avatar
-                    )}
-                  </div>
+                  <PlayerAvatar
+                    avatarUrl={player.avatarUrl}
+                    emoji={player.avatar}
+                    color={player.color}
+                    name={player.name}
+                    size="ml"
+                  />
                   <div>
                     <h4 className="text-zinc-900 font-bold text-sm">{player.name}</h4>
                     <p className="text-[10px] text-zinc-500 mt-0.5">

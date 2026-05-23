@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Player } from "../types/pontinho";
 import { sounds } from "../utils/audio";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { X, Check, Plus, Minus } from "lucide-react";
 
 interface AddScoreModalProps {
@@ -81,20 +82,13 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
                 className="flex items-center justify-between bg-zinc-50 p-3 rounded-2xl border border-zinc-200"
               >
                 <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-white border border-zinc-200 relative"
-                    style={{ borderColor: player.color }}
-                  >
-                    {player.avatarUrl ? (
-                      <img
-                        src={player.avatarUrl}
-                        alt={player.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      player.avatar
-                    )}
-                  </div>
+                  <PlayerAvatar
+                    avatarUrl={player.avatarUrl}
+                    emoji={player.avatar}
+                    color={player.color}
+                    name={player.name}
+                    size="md"
+                  />
                   <div>
                     <h4 className="text-zinc-900 font-bold text-sm">{player.name}</h4>
                     <p className="text-xs text-zinc-500">Total: {player.totalScore} pts</p>

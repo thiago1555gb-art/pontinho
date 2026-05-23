@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Player, GameSettings, RegisteredPlayer } from "../types/pontinho";
 import { sounds } from "../utils/audio";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { Plus, Trash2, Play, X, UserPlus, Check } from "lucide-react";
 
 interface NewMatchModalProps {
@@ -169,20 +170,13 @@ export const NewMatchModal: React.FC<NewMatchModalProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5 truncate">
-                      <div
-                        className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold bg-zinc-100 border border-zinc-200 relative"
-                        style={{ borderColor: player.color }}
-                      >
-                        {player.avatarUrl ? (
-                          <img
-                            src={player.avatarUrl}
-                            alt={player.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          player.avatar
-                        )}
-                      </div>
+                      <PlayerAvatar
+                        avatarUrl={player.avatarUrl}
+                        emoji={player.avatar}
+                        color={player.color}
+                        name={player.name}
+                        size="sm"
+                      />
                       <span className="text-xs font-semibold truncate">{player.name}</span>
                     </div>
                     {isSelected && (

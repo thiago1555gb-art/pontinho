@@ -1,5 +1,6 @@
 import React from "react";
 import { Match, PlayerStats, RegisteredPlayer } from "../types/pontinho";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { Trophy, Award, TrendingUp, Users, Calendar, Percent, RefreshCw, Star } from "lucide-react";
 
 interface StatsViewProps {
@@ -113,20 +114,13 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
                       {idx + 1}
                     </span>
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-white border border-zinc-200 relative"
-                        style={{ borderColor: stat.color }}
-                      >
-                        {stat.avatarUrl ? (
-                          <img
-                            src={stat.avatarUrl}
-                            alt={stat.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          stat.avatar
-                        )}
-                      </div>
+                      <PlayerAvatar
+                        avatarUrl={stat.avatarUrl}
+                        emoji={stat.avatar}
+                        color={stat.color}
+                        name={stat.name}
+                        size="md"
+                      />
                       <div>
                         <h4 className="text-zinc-900 font-bold text-sm flex items-center gap-1">
                           {stat.name}

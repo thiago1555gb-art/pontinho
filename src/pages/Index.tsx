@@ -8,6 +8,7 @@ import { AddScoreModal } from "../components/AddScoreModal";
 import { StatsView } from "../components/StatsView";
 import { MatchHistory } from "../components/MatchHistory";
 import { PlayersManager } from "../components/PlayersManager";
+import { PlayerAvatar } from "../components/PlayerAvatar";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { showSuccess, showError } from "../utils/toast";
 import {
@@ -667,28 +668,16 @@ export default function Index() {
                               </div>
                             )}
                             
-                            {/* Clean Border Ring */}
-                            <div
-                              className="rounded-full p-0.5 bg-white border-2 border-zinc-300"
-                              style={{ borderColor: player.color }}
-                            >
-                              <div
-                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-16 h-16 text-2xl bg-zinc-100"
-                              >
-                                {player.avatarUrl ? (
-                                  <img
-                                    src={player.avatarUrl}
-                                    alt={player.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  player.avatar
-                                )}
-                              </div>
-                            </div>
+                            <PlayerAvatar
+                              avatarUrl={player.avatarUrl}
+                              emoji={player.avatar}
+                              color={player.color}
+                              name={player.name}
+                              size="2xl"
+                            />
 
                             {/* Position Badge */}
-                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-900 text-white border border-white shadow-sm font-sans">
+                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-900 text-white border border-white shadow-sm font-sans z-10">
                               #{idx + 1}
                             </span>
                           </div>
@@ -742,19 +731,15 @@ export default function Index() {
                         <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3.5">
                             {/* Avatar */}
-                            <div
-                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-black/40 border border-white/5 relative"
-                            >
-                              {player.avatarUrl ? (
-                                <img
-                                  src={player.avatarUrl}
-                                  alt={player.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                player.avatar
-                              )}
-                              <span className="absolute -bottom-1 -right-1 bg-zinc-800 text-zinc-400 p-0.5 rounded-full border border-white/5">
+                            <div className="relative">
+                              <PlayerAvatar
+                                avatarUrl={player.avatarUrl}
+                                emoji={player.avatar}
+                                color={player.color}
+                                name={player.name}
+                                size="lg"
+                              />
+                              <span className="absolute -bottom-1 -right-1 bg-zinc-800 text-zinc-400 p-0.5 rounded-full border border-white/5 z-10">
                                 <Skull size={10} />
                               </span>
                             </div>
@@ -817,19 +802,24 @@ export default function Index() {
             {/* Victory Screen Overlay */}
             {currentMatch.isFinished && (
               <div className="bg-[#FFFDF9] border-2 border-[#D4AF37] rounded-3xl p-6 text-center space-y-5 shadow-xl text-zinc-900">
-                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-sm relative">
-                  {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl ? (
-                    <img
-                      src={currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl}
-                      alt="Winner"
-                      className="w-full h-full object-cover"
-                    />
+                {(() => {
+                  const winner = currentMatch.players.find((p) => p.id === currentMatch.winnerId);
+                  return winner ? (
+                    <div className="flex justify-center">
+                      <PlayerAvatar
+                        avatarUrl={winner.avatarUrl}
+                        emoji={winner.avatar}
+                        color={winner.color}
+                        name={winner.name}
+                        size="2xl"
+                      />
+                    </div>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-3xl bg-zinc-100 text-zinc-800">
+                    <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-sm flex items-center justify-center text-3xl bg-zinc-100 text-zinc-800">
                       <Trophy size={28} />
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
                 <div className="space-y-2 font-sans">
                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Vencedor da Partida</span>
                   <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">
