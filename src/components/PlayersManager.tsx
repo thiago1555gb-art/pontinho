@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { RegisteredPlayer } from "../types/pontinho";
 import { sounds } from "../utils/audio";
 import { uploadPlayerAvatar } from "../utils/supabaseService";
+import { processAvatarImage } from "../utils/imageProcessor";
 import { PlayerAvatar } from "./PlayerAvatar";
 import { Plus, Trash2, Edit2, UserPlus, Check, X, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
 import { showSuccess, showError } from "../utils/toast";
@@ -44,28 +45,47 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      showError("A imagem deve ter no máximo 2MB.");
-      return;
-    }
-
     setIsUploading(true);
     sounds.playClick();
 
     try {
+      console.log("[Avatar Upload] Starting high-quality image processing...", {
+        originalName: file.name,
+        originalType: file.type,
+        originalSize: (file.size / 1024).toFixed(1) + " KB"
+      });
+
+      // Process image to high-quality 512x512 square
+      const processed = await processAvatarImage(file);
+      
+      // Create a new File object from the processed Blob
+      const processedFile = new File([processed.blob], `avatar-${Date.now()}.jpg`, {
+        type: "image/jpeg"
+      });
+
       // Generate a temporary ID if creating a new player
       const tempId = editingId || `temp-${Date.now()}`;
-      const uploadedUrl = await uploadPlayerAvatar(tempId, file);
+      
+      // Upload the high-quality processed file
+      const uploadedUrl = await uploadPlayerAvatar(tempId, processedFile);
 
       if (uploadedUrl) {
         setAvatarUrl(uploadedUrl);
-        showSuccess("Foto carregada com sucesso!");
+        showSuccess("Foto de alta qualidade carregada!");
+        
+        // Detailed debugging logs as requested
+        console.log("[Avatar Upload Debug Info]", {
+          originalSize: (file.size / 1024).toFixed(1) + " KB",
+          processedSize: (processedFile.size / 1024).toFixed(1) + " KB",
+          targetResolution: "512x512 (Crisp Retina Quality)",
+          finalUrl: uploadedUrl
+        });
       } else {
         showError("Erro ao enviar imagem. Tente novamente.");
       }
-    } catch (err) {
-      showError("Erro ao enviar imagem.");
+    } catch (err: any) {
+      console.error("[Avatar Upload Error]", err);
+      showError("Erro ao processar ou enviar imagem.");
     } finally {
       setIsUploading(false);
     }
