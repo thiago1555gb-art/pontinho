@@ -23,6 +23,46 @@ export async function checkSupabaseConnection(): Promise<boolean> {
   }
 }
 
+// --- STORAGE API ---
+
+/**
+ * Uploads a player avatar file to Supabase Storage 'avatars' bucket.
+ * Returns the public URL of the uploaded image, or null if failed.
+ */
+export async function uploadPlayerAvatar(playerId: string, file: File): Promise<string | null> {
+  try {
+    // Clean file name to avoid issues
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${playerId}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+    const filePath = `avatars/${fileName}`;
+
+    // Upload file using standard fetch to Supabase Storage API
+    // since our custom client supports standard fetch, we can construct the upload request
+    const SUPABASE_URL = "https://czwcdqkxmkaofmolknvt.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6d2NkcWt4bWthb2Ztb2xrbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Nzc2NDUsImV4cCI6MjA5NTA1MzY0NX0.EvPgrG9_y0SR0KEqv1Aj5a4H-cT4pPYdcn2rbFuQxnw";
+
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/avatars/${filePath}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_PUBLISHABLE_KEY,
+        'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: file
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText);
+    }
+
+    // Return the public URL
+    return `${SUPABASE_URL}/storage/v1/object/public/avatars/${filePath}`;
+  } catch (err) {
+    console.error("[Supabase Storage] Error uploading avatar:", err);
+    return null;
+  }
+}
+
 // --- PLAYERS API ---
 
 export async function fetchRegisteredPlayers(): Promise<RegisteredPlayer[]> {
@@ -39,6 +79,7 @@ export async function fetchRegisteredPlayers(): Promise<RegisteredPlayer[]> {
         id: p.id,
         name: p.name,
         avatar: p.avatar,
+        avatarUrl: p.avatar_url || undefined,
         color: p.color || "#EF4444",
         createdAt: new Date(p.created_at).getTime(),
         gamesPlayed: p.matches_played || 0,
@@ -82,6 +123,7 @@ export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<
         id: player.id,
         name: player.name,
         avatar: player.avatar,
+        avatar_url: player.avatarUrl || null,
         color: player.color,
         matches_played: player.gamesPlayed || 0,
         victories: player.wins || 0,
@@ -105,6 +147,7 @@ export async function updateRegisteredPlayer(player: RegisteredPlayer): Promise<
       .update({
         name: player.name,
         avatar: player.avatar,
+        avatar_url: player.avatarUrl || null,
         color: player.color,
         updated_at: new Date().toISOString(),
       })

@@ -45,6 +45,7 @@ export const NewMatchModal: React.FC<NewMatchModalProps> = ({
         name: rp.name,
         color: rp.color,
         avatar: rp.avatar,
+        avatarUrl: rp.avatarUrl,
       };
     });
 
@@ -168,7 +169,20 @@ export const NewMatchModal: React.FC<NewMatchModalProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <span className="text-lg">{player.avatar}</span>
+                      <div
+                        className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold shadow-inner relative"
+                        style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
+                      >
+                        {player.avatarUrl ? (
+                          <img
+                            src={player.avatarUrl}
+                            alt={player.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          player.avatar
+                        )}
+                      </div>
                       <span className="text-xs font-bold truncate">{player.name}</span>
                     </div>
                     {isSelected && (

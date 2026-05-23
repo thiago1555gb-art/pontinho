@@ -82,10 +82,18 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold shadow-inner"
+                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold shadow-inner relative"
                     style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
                   >
-                    {player.avatar}
+                    {player.avatarUrl ? (
+                      <img
+                        src={player.avatarUrl}
+                        alt={player.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      player.avatar
+                    )}
                   </div>
                   <div>
                     <h4 className="text-white font-bold text-sm">{player.name}</h4>

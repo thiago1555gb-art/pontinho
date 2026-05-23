@@ -72,8 +72,21 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ match, onUndo }) => 
 
                       return (
                         <div key={player.id} className="flex items-center justify-between text-xs">
-                          <span className="text-zinc-400 flex items-center gap-1">
-                            <span>{player.avatar}</span>
+                          <span className="text-zinc-400 flex items-center gap-1.5">
+                            <div
+                              className="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-bold shadow-inner relative"
+                              style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
+                            >
+                              {player.avatarUrl ? (
+                                <img
+                                  src={player.avatarUrl}
+                                  alt={player.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                player.avatar
+                              )}
+                            </div>
                             <span className="truncate max-w-[80px]">{player.name}</span>
                           </span>
                           <span className={`font-bold ${score > 0 ? "text-red-400" : score < 0 ? "text-emerald-400" : "text-zinc-500"}`}>

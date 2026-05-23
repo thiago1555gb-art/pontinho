@@ -3,6 +3,7 @@ export interface Player {
   name: string;
   color: string;
   avatar: string;
+  avatarUrl?: string;
   scores: number[];
   totalScore: number;
   isEliminated: boolean;
@@ -14,6 +15,7 @@ export interface RegisteredPlayer {
   name: string;
   color: string;
   avatar: string;
+  avatarUrl?: string;
   createdAt: number;
   gamesPlayed?: number;
   wins?: number;
@@ -48,6 +50,7 @@ export interface GameSettings {
 export interface PlayerStats {
   name: string;
   avatar: string;
+  avatarUrl?: string;
   color: string;
   gamesPlayed: number;
   wins: number;

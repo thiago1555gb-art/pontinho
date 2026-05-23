@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { RegisteredPlayer } from "../types/pontinho";
 import { sounds } from "../utils/audio";
-import { Plus, Trash2, Edit2, UserPlus, Check, X } from "lucide-react";
+import { uploadPlayerAvatar } from "../utils/supabaseService";
+import { Plus, Trash2, Edit2, UserPlus, Check, X, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
+import { showSuccess, showError } from "../utils/toast";
 
 interface PlayersManagerProps {
   registeredPlayers: RegisteredPlayer[];
-  onAddPlayer: (name: string, color: string, avatar: string) => void;
-  onEditPlayer: (id: string, name: string, color: string, avatar: string) => void;
+  onAddPlayer: (name: string, color: string, avatar: string, avatarUrl?: string) => void;
+  onEditPlayer: (id: string, name: string, color: string, avatar: string, avatarUrl?: string) => void;
   onDeletePlayer: (id: string) => void;
 }
 
@@ -25,7 +27,73 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
   const [name, setName] = useState("");
   const [color, setColor] = useState(PRESET_COLORS[0]);
   const [avatar, setAvatar] = useState(PRESET_EMOJIS[0]);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Image Upload States
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (file: File) => {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      showError("Formato inválido! Use JPG, PNG ou WEBP.");
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showError("A imagem deve ter no máximo 2MB.");
+      return;
+    }
+
+    setIsUploading(true);
+    sounds.playClick();
+
+    try {
+      // Generate a temporary ID if creating a new player
+      const tempId = editingId || `temp-${Date.now()}`;
+      const uploadedUrl = await uploadPlayerAvatar(tempId, file);
+
+      if (uploadedUrl) {
+        setAvatarUrl(uploadedUrl);
+        showSuccess("Foto carregada com sucesso!");
+      } else {
+        showError("Erro ao enviar imagem. Tente novamente.");
+      }
+    } catch (err) {
+      showError("Erro ao enviar imagem.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleImageUpload(e.target.files[0]);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageUpload(e.dataTransfer.files[0]);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,15 +101,16 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
 
     sounds.playSuccess();
     if (editingId) {
-      onEditPlayer(editingId, name.trim(), color, avatar);
+      onEditPlayer(editingId, name.trim(), color, avatar, avatarUrl);
       setEditingId(null);
     } else {
-      onAddPlayer(name.trim(), color, avatar);
+      onAddPlayer(name.trim(), color, avatar, avatarUrl);
     }
 
     setName("");
     setColor(PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)]);
     setAvatar(PRESET_EMOJIS[Math.floor(Math.random() * PRESET_EMOJIS.length)]);
+    setAvatarUrl(undefined);
   };
 
   const handleStartEdit = (player: RegisteredPlayer) => {
@@ -50,6 +119,7 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
     setName(player.name);
     setColor(player.color);
     setAvatar(player.avatar);
+    setAvatarUrl(player.avatarUrl);
   };
 
   const handleCancelEdit = () => {
@@ -58,6 +128,12 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
     setName("");
     setColor(PRESET_COLORS[0]);
     setAvatar(PRESET_EMOJIS[0]);
+    setAvatarUrl(undefined);
+  };
+
+  const removePhoto = () => {
+    sounds.playClick();
+    setAvatarUrl(undefined);
   };
 
   return (
@@ -70,6 +146,67 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
         </h3>
 
         <div className="space-y-3">
+          {/* Photo Upload Area */}
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1.5">Foto de Perfil (Opcional)</label>
+            <div
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`relative border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                dragActive
+                  ? "border-amber-500 bg-amber-500/5"
+                  : "border-zinc-800 hover:border-zinc-700 bg-zinc-950/30"
+              }`}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-1 py-2">
+                  <Loader2 className="animate-spin text-amber-500" size={24} />
+                  <span className="text-xs text-zinc-400">Enviando imagem...</span>
+                </div>
+              ) : avatarUrl ? (
+                <div className="flex items-center gap-4 w-full" onClick={(e) => e.stopPropagation()}>
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-amber-500/50 shadow-lg">
+                    <img
+                      src={avatarUrl}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-xs font-bold text-white">Foto carregada!</p>
+                    <p className="text-[10px] text-zinc-500">Pronta para salvar</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors text-xs font-bold"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-1 py-2 text-center">
+                  <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400">
+                    <Upload size={18} />
+                  </div>
+                  <span className="text-xs font-bold text-zinc-300">Arraste ou clique para enviar</span>
+                  <span className="text-[10px] text-zinc-500">JPG, PNG ou WEBP (Máx. 2MB)</span>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs text-zinc-400 mb-1">Nome do Jogador</label>
             <input
@@ -118,7 +255,7 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
         <div className="flex gap-2 pt-2">
           <button
             type="submit"
-            disabled={!name.trim()}
+            disabled={!name.trim() || isUploading}
             className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-50 text-white font-bold rounded-xl shadow-lg shadow-amber-900/20 flex items-center justify-center gap-2 transition-all text-sm"
           >
             <Check size={16} />
@@ -155,11 +292,20 @@ export const PlayersManager: React.FC<PlayersManagerProps> = ({
                 className="flex items-center justify-between bg-zinc-900/40 border border-zinc-800/50 p-3.5 rounded-2xl"
               >
                 <div className="flex items-center gap-3">
+                  {/* Circular Avatar with Fallback */}
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold shadow-inner"
+                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold shadow-inner relative"
                     style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
                   >
-                    {player.avatar}
+                    {player.avatarUrl ? (
+                      <img
+                        src={player.avatarUrl}
+                        alt={player.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      player.avatar
+                    )}
                   </div>
                   <div>
                     <h4 className="text-white font-bold text-sm">{player.name}</h4>

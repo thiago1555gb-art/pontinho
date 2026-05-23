@@ -115,7 +115,7 @@ export default function Index() {
   }, []);
 
   // Player Database Actions
-  const handleAddPlayer = async (name: string, color: string, avatar: string) => {
+  const handleAddPlayer = async (name: string, color: string, avatar: string, avatarUrl?: string) => {
     // Check for duplicate name
     const isDuplicate = await isPlayerNameDuplicate(name);
     if (isDuplicate) {
@@ -129,6 +129,7 @@ export default function Index() {
       name,
       color,
       avatar,
+      avatarUrl,
       createdAt: Date.now(),
       gamesPlayed: 0,
       wins: 0,
@@ -149,7 +150,7 @@ export default function Index() {
     }
   };
 
-  const handleEditPlayer = async (id: string, name: string, color: string, avatar: string) => {
+  const handleEditPlayer = async (id: string, name: string, color: string, avatar: string, avatarUrl?: string) => {
     // Check for duplicate name excluding current player
     const isDuplicate = await isPlayerNameDuplicate(name, id);
     if (isDuplicate) {
@@ -164,6 +165,7 @@ export default function Index() {
       name,
       color,
       avatar,
+      avatarUrl,
       createdAt: existing?.createdAt || Date.now(),
       gamesPlayed: existing?.gamesPlayed || 0,
       wins: existing?.wins || 0,
@@ -660,12 +662,20 @@ export default function Index() {
                         <div className="flex items-center gap-3">
                           {/* Avatar */}
                           <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shadow-inner relative"
+                            className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-2xl font-bold shadow-inner relative"
                             style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
                           >
-                            {player.avatar}
+                            {player.avatarUrl ? (
+                              <img
+                                src={player.avatarUrl}
+                                alt={player.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              player.avatar
+                            )}
                             {isLeader && (
-                              <span className="absolute -top-2 -right-2 bg-amber-500 text-black p-0.5 rounded-full shadow-md">
+                              <span className="absolute -top-1 -right-1 bg-amber-500 text-black p-0.5 rounded-full shadow-md">
                                 <Trophy size={10} fill="currentColor" />
                               </span>
                             )}
@@ -718,9 +728,17 @@ export default function Index() {
                           <div className="flex items-center gap-3">
                             {/* Avatar */}
                             <div
-                              className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold bg-red-950/20 border border-red-900/30 relative"
+                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-2xl font-bold bg-red-950/20 border border-red-900/30 relative"
                             >
-                              {player.avatar}
+                              {player.avatarUrl ? (
+                                <img
+                                  src={player.avatarUrl}
+                                  alt={player.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                player.avatar
+                              )}
                               <span className="absolute -bottom-1 -right-1 bg-red-600 text-white p-0.5 rounded-full shadow-md">
                                 <Skull size={10} />
                               </span>
@@ -784,8 +802,18 @@ export default function Index() {
             {/* Victory Screen Overlay */}
             {currentMatch.isFinished && (
               <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 text-center space-y-4 shadow-2xl">
-                <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400">
-                  <Trophy size={32} />
+                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-amber-500/50 shadow-lg relative">
+                  {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl ? (
+                    <img
+                      src={currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl}
+                      alt="Winner"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-3xl bg-amber-500/10 text-amber-400">
+                      <Trophy size={32} />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Vencedor da Partida</span>

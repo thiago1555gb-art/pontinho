@@ -49,6 +49,7 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
     return {
       name: rp.name,
       avatar: rp.avatar,
+      avatarUrl: rp.avatarUrl,
       color: rp.color,
       gamesPlayed: data.games,
       wins: data.wins,
@@ -112,7 +113,20 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
                       {idx + 1}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{stat.avatar}</span>
+                      <div
+                        className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold shadow-inner relative"
+                        style={{ backgroundColor: `${stat.color}20`, border: `1px solid ${stat.color}40` }}
+                      >
+                        {stat.avatarUrl ? (
+                          <img
+                            src={stat.avatarUrl}
+                            alt={stat.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          stat.avatar
+                        )}
+                      </div>
                       <div>
                         <h4 className="text-white font-bold text-sm flex items-center gap-1">
                           {stat.name}
