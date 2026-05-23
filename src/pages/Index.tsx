@@ -147,7 +147,7 @@ export default function Index() {
       setIsOnline(true);
       showSuccess("Jogador cadastrado com sucesso!");
     } else {
-      showSuccess("Jogador saved localmente (offline)");
+      showSuccess("Jogador salvo localmente (offline)");
     }
   };
 
@@ -657,7 +657,7 @@ export default function Index() {
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
+                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4.5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
                         isLeader
                           ? "border-amber-500/50 bg-gradient-to-r from-zinc-900/90 to-amber-950/20"
                           : "border-zinc-800/60"
@@ -673,12 +673,12 @@ export default function Index() {
                       />
 
                       <div className="flex items-center justify-between relative z-10 gap-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex items-center gap-3.5 flex-1 min-w-0">
                           {/* Premium Avatar Container */}
                           <div className="relative flex-shrink-0">
                             {isLeader && (
-                              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                                <Crown size={18} className="text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" />
+                              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                                <Crown size={20} className="text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" />
                               </div>
                             )}
                             
@@ -693,7 +693,7 @@ export default function Index() {
                             >
                               <div
                                 className={`rounded-full overflow-hidden flex items-center justify-center font-bold shadow-2xl relative transition-all duration-300 ${
-                                  isLeader ? "w-14 h-14 text-2xl" : "w-12 h-12 text-xl"
+                                  isLeader ? "w-15 h-15 text-3xl" : "w-13 h-13 text-2xl"
                                 }`}
                                 style={{ backgroundColor: `${player.color}15` }}
                               >
@@ -723,7 +723,7 @@ export default function Index() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <h3 className={`font-black tracking-tight truncate ${
-                                isLeader ? "text-sm text-amber-300" : "text-xs text-white"
+                                isLeader ? "text-base text-amber-300" : "text-sm text-white"
                               }`}>
                                 {player.name}
                               </h3>
@@ -740,7 +740,7 @@ export default function Index() {
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right flex-shrink-0 bg-zinc-950/40 border border-zinc-800/50 rounded-xl px-3 py-1.5 min-w-[65px]">
+                        <div className="text-right flex-shrink-0 bg-zinc-950/40 border border-zinc-800/50 rounded-xl px-3.5 py-2 min-w-[70px]">
                           <span className={`text-2xl font-black tracking-tight block leading-none ${
                             isLeader ? "text-amber-400" : "text-white"
                           }`}>
