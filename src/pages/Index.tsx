@@ -427,16 +427,42 @@ export default function Index() {
 
   const leader = getLeader();
 
-  // Bespoke Theme Styling - "The Cardroom" (Luxury Editorial Light Theme)
+  // Playing Card Theme Styling - Felt Table Backgrounds
   const getThemeClasses = () => {
-    return {
-      bg: "bg-[#FAF8F5]", // Warm, textured ivory/cream
-      card: "bg-[#F5F1EA] border border-[#1C1C1C]", // Tactile paper card
-      border: "border-[#1C1C1C]",
-      accent: "text-[#8C2D19]", // Rich Crimson
-      button: "bg-[#1C1C1C] text-[#FAF8F5] hover:bg-[#2D2D2D]",
-      textMuted: "text-[#5C5A55]",
-    };
+    switch (settings.theme) {
+      case "casino-green":
+        return {
+          bg: "bg-[#0A2F1D]", // Classic Casino Green Felt
+          cardBack: "bg-[#8C1D1D]", // Classic Red Card Back
+          accent: "text-[#D4AF37]", // Gold
+          suit: "♠",
+          suitColor: "text-zinc-900",
+        };
+      case "poker-red":
+        return {
+          bg: "bg-[#2D0A0A]", // Deep Red Felt
+          cardBack: "bg-[#1B365D]", // Classic Blue Card Back
+          accent: "text-[#D4AF37]",
+          suit: "♥",
+          suitColor: "text-red-600",
+        };
+      case "midnight-blue":
+        return {
+          bg: "bg-[#0A1D2F]", // Midnight Blue Felt
+          cardBack: "bg-[#8C1D1D]",
+          accent: "text-[#D4AF37]",
+          suit: "♦",
+          suitColor: "text-red-600",
+        };
+      case "obsidian":
+        return {
+          bg: "bg-[#1A0A2F]", // Deep Purple Felt
+          cardBack: "bg-[#1B365D]",
+          accent: "text-[#D4AF37]",
+          suit: "♣",
+          suitColor: "text-zinc-900",
+        };
+    }
   };
 
   const themeStyles = getThemeClasses();
@@ -455,27 +481,27 @@ export default function Index() {
     : [];
 
   return (
-    <div className={`min-h-screen ${themeStyles.bg} text-[#1C1C1C] font-sans relative overflow-x-hidden pb-28 transition-colors duration-500`}>
+    <div className={`min-h-screen ${themeStyles.bg} text-[#FFFDF9] font-serif relative overflow-x-hidden pb-28 transition-colors duration-500`}>
       {/* Confetti on Victory */}
       <Confetti active={!!(currentMatch && currentMatch.isFinished)} />
 
       {/* Header - Styled like a premium club scoreboard */}
-      <header className="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#1C1C1C]/10 px-4 py-5">
+      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-md border-b border-[#D4AF37]/20 px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#1C1C1C] flex items-center justify-center shadow-sm">
-              <span className="font-serif text-base font-bold text-[#FAF8F5]">♠</span>
+            <div className="w-9 h-9 rounded-xl bg-[#FFFDF9] border-2 border-[#D4AF37] flex items-center justify-center shadow-md">
+              <span className="font-serif text-xl font-bold text-red-600">A</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-serif font-bold tracking-tight text-[#1C1C1C]">The Cardroom</h1>
+                <h1 className="text-xl font-bold tracking-wide text-[#FFFDF9] font-serif">The Royal Deck</h1>
                 {isOnline ? (
                   <span className="flex h-1.5 w-1.5 relative" title="Sincronizado">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8C2D19] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#8C2D19]"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                   </span>
                 ) : (
-                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" title="Modo Local"></span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" title="Modo Local"></span>
                 )}
               </div>
             </div>
@@ -485,19 +511,19 @@ export default function Index() {
             {/* Sound Toggle */}
             <button
               onClick={toggleSound}
-              className="p-2 rounded-lg border border-[#1C1C1C]/10 text-[#1C1C1C]/60 hover:text-[#1C1C1C] transition-all active:scale-95"
+              className="p-2 rounded-xl bg-black/30 border border-[#D4AF37]/20 text-zinc-300 hover:text-white transition-all active:scale-95"
             >
-              {settings.soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              {settings.soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
 
             {/* Reset Match */}
             {currentMatch && (
               <button
                 onClick={() => { sounds.playClick(); setShowResetConfirm(true); }}
-                className="p-2 rounded-lg border border-[#1C1C1C]/10 text-[#1C1C1C]/60 hover:text-[#8C2D19] transition-all active:scale-95"
+                className="p-2 rounded-xl bg-black/30 border border-[#D4AF37]/20 text-zinc-300 hover:text-red-400 transition-all active:scale-95"
                 title="Reiniciar Partida"
               >
-                <RotateCcw size={15} />
+                <RotateCcw size={16} />
               </button>
             )}
           </div>
@@ -506,47 +532,47 @@ export default function Index() {
 
       {/* Main Content Container */}
       <main className="max-w-md mx-auto px-4 pt-6 space-y-6 relative z-10">
-        {/* Navigation Tabs - Custom leather/felt toggle style */}
-        <div className="grid grid-cols-3 gap-1 bg-[#F5F1EA] p-1 rounded-xl border border-[#1C1C1C]/10">
+        {/* Navigation Tabs - Styled like overlapping cards */}
+        <div className="grid grid-cols-3 gap-1 bg-black/30 p-1 rounded-2xl border border-[#D4AF37]/20">
           <button
             onClick={() => { sounds.playClick(); setActiveTab("game"); }}
-            className={`py-2.5 rounded-lg text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all font-sans ${
               activeTab === "game"
-                ? "bg-[#1C1C1C] text-[#FAF8F5] shadow-sm"
-                : "text-[#5C5A55] hover:text-[#1C1C1C]"
+                ? "bg-[#FFFDF9] text-zinc-900 shadow-md border border-[#D4AF37]"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Gamepad2 size={13} />
+            <Gamepad2 size={14} />
             Mesa
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("players"); }}
-            className={`py-2.5 rounded-lg text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all font-sans ${
               activeTab === "players"
-                ? "bg-[#1C1C1C] text-[#FAF8F5] shadow-sm"
-                : "text-[#5C5A55] hover:text-[#1C1C1C]"
+                ? "bg-[#FFFDF9] text-zinc-900 shadow-md border border-[#D4AF37]"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Users size={13} />
+            <Users size={14} />
             Membros
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("stats"); }}
-            className={`py-2.5 rounded-lg text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all font-sans ${
               activeTab === "stats"
-                ? "bg-[#1C1C1C] text-[#FAF8F5] shadow-sm"
-                : "text-[#5C5A55] hover:text-[#1C1C1C]"
+                ? "bg-[#FFFDF9] text-zinc-900 shadow-md border border-[#D4AF37]"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <BarChart3 size={13} />
+            <BarChart3 size={14} />
             Placar
           </button>
         </div>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
-            <Loader2 className="animate-spin text-[#1C1C1C]" size={24} />
-            <p className="text-[#5C5A55] text-xs tracking-wide uppercase">Sincronizando dados...</p>
+            <Loader2 className="animate-spin text-zinc-400" size={28} />
+            <p className="text-zinc-500 text-xs tracking-wide uppercase font-sans">Sincronizando dados...</p>
           </div>
         ) : activeTab === "stats" ? (
           <StatsView matches={matches} registeredPlayers={registeredPlayers} />
@@ -560,48 +586,50 @@ export default function Index() {
         ) : !currentMatch ? (
           /* Empty State / Start Match */
           <div className="text-center py-16 space-y-8">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#F5F1EA] border border-[#1C1C1C]/10 flex items-center justify-center shadow-sm">
-              <Sparkles size={24} className="text-[#5C5A55]" />
+            <div className="w-24 h-32 mx-auto rounded-2xl bg-[#FFFDF9] border-2 border-[#D4AF37] flex flex-col items-center justify-between p-3 shadow-xl text-zinc-900 relative rotate-[-6deg]">
+              <div className="self-start font-bold text-lg leading-none">♠</div>
+              <Sparkles size={28} className="text-[#D4AF37]" />
+              <div className="self-end font-bold text-lg leading-none rotate-180">♠</div>
             </div>
             <div className="space-y-3">
-              <h2 className="text-xl font-serif font-bold text-[#1C1C1C] tracking-tight">Nenhuma mesa ativa</h2>
-              <p className="text-[#5C5A55] text-sm max-w-xs mx-auto leading-relaxed">
-                Abra uma nova mesa de Pontinho para começar a registrar as rodadas com a elegância de um clube privado tradicional.
+              <h2 className="text-2xl font-bold text-white tracking-wide">Nenhuma mesa ativa</h2>
+              <p className="text-zinc-300 text-sm max-w-xs mx-auto leading-relaxed font-sans">
+                Abra um novo baralho e comece a registrar as rodadas com a elegância de um clube de cartas tradicional.
               </p>
             </div>
             <button
               onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-              className={`px-8 py-3.5 ${themeStyles.button} font-bold rounded-xl shadow-sm flex items-center justify-center gap-2.5 mx-auto transition-all transform active:scale-95 text-sm`}
+              className="px-8 py-4 bg-[#FFFDF9] text-zinc-900 hover:bg-zinc-100 font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2.5 mx-auto transition-all transform active:scale-95 text-sm border-2 border-[#D4AF37] font-sans"
             >
-              <Play size={14} fill="currentColor" />
-              Abrir Mesa
+              <Play size={15} fill="currentColor" />
+              Distribuir Cartas
             </button>
           </div>
         ) : (
           /* Active Match View */
           <div className="space-y-5">
-            {/* Match Info Bar - Styled like a luxury watch face / dashboard */}
-            <div className="flex items-center justify-between bg-[#F5F1EA] border border-[#1C1C1C]/10 rounded-xl p-4">
+            {/* Match Info Bar */}
+            <div className="flex items-center justify-between bg-black/30 border border-[#D4AF37]/20 rounded-2xl p-4 font-sans">
               <div className="flex items-center gap-2.5">
-                <Clock size={14} className="text-[#5C5A55]" />
-                <span className="text-sm font-mono font-semibold text-[#1C1C1C]">{formatTime(timer)}</span>
+                <Clock size={15} className="text-zinc-400" />
+                <span className="text-sm font-mono font-medium text-zinc-300">{formatTime(timer)}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-[#5C5A55] uppercase tracking-wider font-bold block">Limite de Pontos</span>
-                <span className={`text-sm font-bold ${themeStyles.accent}`}>{currentMatch.limitScore} pts</span>
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block">Limite de Pontos</span>
+                <span className="text-sm font-bold text-[#D4AF37]">{currentMatch.limitScore} pts</span>
               </div>
             </div>
 
             {/* Active Players Section */}
             <div className="space-y-3">
-              <div className="flex justify-between items-center px-1">
-                <h3 className="text-xs font-bold text-[#5C5A55] uppercase tracking-wider">
+              <div className="flex justify-between items-center px-1 font-sans">
+                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
                   Jogadores Ativos ({activePlayersList.length})
                 </h3>
-                <span className="text-[10px] text-[#5C5A55] font-medium">Ordenado por menor pontuação</span>
+                <span className="text-[10px] text-zinc-400 font-medium">Ordenado por menor pontuação</span>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {activePlayersList.map((player, idx) => {
                   const isLeader = leader && leader.id === player.id;
                   const progress = Math.min(100, (player.totalScore / currentMatch.limitScore) * 100);
@@ -609,35 +637,45 @@ export default function Index() {
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden ${themeStyles.card} rounded-xl p-4 transition-all duration-300 ${
+                      className={`relative overflow-hidden bg-[#FFFDF9] border-2 rounded-2xl p-5 shadow-xl text-zinc-900 transition-all duration-300 ${
                         isLeader
-                          ? "border-[#1C1C1C] bg-[#FAF8F5]"
-                          : "border-[#1C1C1C]/10 bg-[#F5F1EA]"
+                          ? "border-[#D4AF37] ring-2 ring-[#D4AF37]/20"
+                          : "border-zinc-300"
                       }`}
                     >
+                      {/* Playing Card Corner Indices */}
+                      <div className="absolute top-3 left-3 flex flex-col items-center font-serif leading-none select-none">
+                        <span className="text-sm font-bold">{player.totalScore}</span>
+                        <span className={`text-xs ${themeStyles.suitColor}`}>{themeStyles.suit}</span>
+                      </div>
+                      <div className="absolute bottom-3 right-3 flex flex-col items-center font-serif leading-none rotate-180 select-none">
+                        <span className="text-sm font-bold">{player.totalScore}</span>
+                        <span className={`text-xs ${themeStyles.suitColor}`}>{themeStyles.suit}</span>
+                      </div>
+
                       {/* Progress Bar Background - subtle and integrated */}
                       <div
-                        className="absolute bottom-0 left-0 h-1 bg-[#1C1C1C]/10 transition-all duration-500"
+                        className="absolute bottom-0 left-0 h-1.5 bg-red-600/20 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
 
-                      <div className="flex items-center justify-between relative z-10 gap-4">
+                      <div className="flex items-center justify-between relative z-10 gap-4 px-6">
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                           {/* Premium Avatar Container */}
                           <div className="relative flex-shrink-0">
                             {isLeader && (
                               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                                <Crown size={14} className="text-[#8C2D19] fill-[#8C2D19]" />
+                                <Crown size={18} className="text-[#D4AF37] fill-[#D4AF37]" />
                               </div>
                             )}
                             
                             {/* Clean Border Ring */}
                             <div
-                              className="rounded-full p-0.5 bg-[#FAF8F5] border border-[#1C1C1C]/20"
+                              className="rounded-full p-0.5 bg-white border-2 border-zinc-300"
                               style={{ borderColor: player.color }}
                             >
                               <div
-                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-12 h-12 text-xl bg-[#F5F1EA]"
+                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-14 h-14 text-2xl bg-zinc-100"
                               >
                                 {player.avatarUrl ? (
                                   <img
@@ -652,35 +690,35 @@ export default function Index() {
                             </div>
 
                             {/* Position Badge */}
-                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#1C1C1C] text-[#FAF8F5] border border-[#FAF8F5] shadow-sm">
+                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-900 text-white border border-white shadow-sm font-sans">
                               #{idx + 1}
                             </span>
                           </div>
 
                           {/* Player Info */}
-                          <div className="min-w-0 flex-1">
+                          <div className="min-w-0 flex-1 font-sans">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-bold text-sm text-[#1C1C1C] tracking-tight truncate">
+                              <h3 className="font-bold text-base text-zinc-900 tracking-tight truncate">
                                 {player.name}
                               </h3>
                               {player.reentries > 0 && (
-                                <span className="text-[9px] font-semibold bg-[#1C1C1C]/5 text-[#5C5A55] px-2 py-0.5 rounded-full border border-[#1C1C1C]/10">
+                                <span className="text-[9px] font-semibold bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-full border border-zinc-200">
                                   {player.reentries} Reentr.
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-[#5C5A55] mt-1 font-medium">
+                            <p className="text-xs text-zinc-500 mt-1 font-medium">
                               {isLeader ? "👑 Líder da Mesa" : `Atrás do líder por ${player.totalScore - leader!.totalScore} pts`}
                             </p>
                           </div>
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right flex-shrink-0 bg-[#FAF8F5] border border-[#1C1C1C]/10 rounded-lg px-3 py-2 min-w-[65px]">
-                          <span className="text-xl font-mono font-bold tracking-tight block leading-none text-[#1C1C1C]">
+                        <div className="text-right flex-shrink-0 bg-zinc-100 border border-zinc-200 rounded-xl px-4 py-2.5 min-w-[75px] font-sans">
+                          <span className="text-2xl font-mono font-bold tracking-tight block leading-none text-zinc-900">
                             {player.totalScore}
                           </span>
-                          <span className="text-[9px] font-bold text-[#5C5A55] uppercase tracking-wider block mt-1">pontos</span>
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mt-1">pontos</span>
                         </div>
                       </div>
                     </div>
@@ -691,9 +729,9 @@ export default function Index() {
 
             {/* Eliminated Players Section */}
             {eliminatedPlayersList.length > 0 && (
-              <div className="space-y-3 pt-2">
-                <h3 className="text-xs font-bold text-[#5C5A55] uppercase tracking-wider px-1 flex items-center gap-2">
-                  <Skull size={12} />
+              <div className="space-y-3 pt-2 font-sans">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1 flex items-center gap-2">
+                  <Skull size={13} />
                   Jogadores Eliminados ({eliminatedPlayersList.length})
                 </h3>
                 <div className="space-y-3">
@@ -701,13 +739,13 @@ export default function Index() {
                     return (
                       <div
                         key={player.id}
-                        className="relative overflow-hidden bg-[#F5F1EA]/40 border border-[#1C1C1C]/10 rounded-xl p-4 opacity-60"
+                        className="relative overflow-hidden bg-black/20 border border-white/5 rounded-2xl p-4 opacity-60"
                       >
                         <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3.5">
                             {/* Avatar */}
                             <div
-                              className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-lg font-bold bg-[#F5F1EA] border border-[#1C1C1C]/10 relative"
+                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-black/40 border border-white/5 relative"
                             >
                               {player.avatarUrl ? (
                                 <img
@@ -718,19 +756,19 @@ export default function Index() {
                               ) : (
                                 player.avatar
                               )}
-                              <span className="absolute -bottom-1 -right-1 bg-[#5C5A55] text-[#FAF8F5] p-0.5 rounded-full border border-[#FAF8F5]">
-                                <Skull size={8} />
+                              <span className="absolute -bottom-1 -right-1 bg-zinc-800 text-zinc-400 p-0.5 rounded-full border border-white/5">
+                                <Skull size={10} />
                               </span>
                             </div>
 
                             <div>
                               <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-sm text-[#5C5A55] line-through">{player.name}</h3>
-                                <span className="text-[9px] font-semibold bg-[#1C1C1C]/5 text-[#5C5A55] border border-[#1C1C1C]/10 px-2 py-0.5 rounded-full">
+                                <h3 className="font-bold text-sm text-zinc-400 line-through">{player.name}</h3>
+                                <span className="text-[9px] font-semibold bg-black/40 text-zinc-500 border border-white/5 px-2 py-0.5 rounded-full">
                                   ELIMINADO
                                 </span>
                               </div>
-                              <p className="text-xs text-[#5C5A55] mt-0.5">
+                              <p className="text-xs text-zinc-500 mt-0.5">
                                 Estourou com {player.totalScore} pts
                               </p>
                             </div>
@@ -741,17 +779,17 @@ export default function Index() {
                             {settings.allowReentry && !currentMatch.isFinished && (
                               <button
                                 onClick={() => handleReentry(player.id)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF8F5] hover:bg-[#F5F1EA] text-[#1C1C1C] border border-[#1C1C1C]/20 rounded-lg text-xs font-semibold transition-all active:scale-95"
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 rounded-xl text-xs font-semibold transition-all active:scale-95"
                               >
-                                <RefreshCw size={11} />
+                                <RefreshCw size={12} />
                                 Reentrar
                               </button>
                             )}
                             <div className="text-right min-w-[45px]">
-                              <span className="text-lg font-mono font-bold text-[#5C5A55]">
+                              <span className="text-lg font-mono font-bold text-zinc-500">
                                 {player.totalScore}
                               </span>
-                              <span className="text-[9px] text-[#5C5A55] block">pontos</span>
+                              <span className="text-[9px] text-zinc-600 block">pontos</span>
                             </div>
                           </div>
                         </div>
@@ -770,9 +808,9 @@ export default function Index() {
               <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 w-full max-w-xs px-4">
                 <button
                   onClick={() => { sounds.playClick(); setIsAddScoreOpen(true); }}
-                  className="w-full py-3.5 bg-[#1C1C1C] text-[#FAF8F5] hover:bg-[#2D2D2D] font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm"
+                  className="w-full py-4 bg-[#FFFDF9] text-zinc-900 hover:bg-zinc-100 font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm border-2 border-[#D4AF37] font-sans"
                 >
-                  <Plus size={16} />
+                  <Plus size={18} />
                   Adicionar Rodada
                 </button>
               </div>
@@ -780,8 +818,8 @@ export default function Index() {
 
             {/* Victory Screen Overlay */}
             {currentMatch.isFinished && (
-              <div className="bg-[#F5F1EA] border border-[#1C1C1C]/20 rounded-2xl p-6 text-center space-y-5 shadow-sm">
-                <div className="w-14 h-14 mx-auto rounded-full overflow-hidden border border-[#1C1C1C]/10 shadow-sm relative">
+              <div className="bg-[#FFFDF9] border-2 border-[#D4AF37] rounded-3xl p-6 text-center space-y-5 shadow-xl text-zinc-900">
+                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-sm relative">
                   {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl ? (
                     <img
                       src={currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl}
@@ -789,21 +827,21 @@ export default function Index() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl bg-[#FAF8F5] text-[#1C1C1C]">
-                      <Trophy size={24} />
+                    <div className="w-full h-full flex items-center justify-center text-3xl bg-zinc-100 text-zinc-800">
+                      <Trophy size={28} />
                     </div>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-[#5C5A55] uppercase tracking-wider">Vencedor da Partida</span>
-                  <h2 className="text-xl font-serif font-bold text-[#1C1C1C] tracking-tight">
+                <div className="space-y-2 font-sans">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Vencedor da Partida</span>
+                  <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">
                     {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.name || "Ninguém"}
                   </h2>
-                  <p className="text-[#5C5A55] text-xs">Partida finalizada em {formatTime(timer)}</p>
+                  <p className="text-zinc-500 text-xs">Partida finalizada em {formatTime(timer)}</p>
                 </div>
                 <button
                   onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-                  className="w-full py-3 bg-[#1C1C1C] text-[#FAF8F5] hover:bg-[#2D2D2D] font-bold rounded-xl transition-all transform active:scale-95 text-sm"
+                  className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl transition-all transform active:scale-95 text-sm font-sans"
                 >
                   Jogar Novamente
                 </button>
@@ -832,27 +870,27 @@ export default function Index() {
 
       {/* Reset Confirmation Modal */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#FAF8F5] border border-[#1C1C1C]/20 rounded-2xl p-6 max-w-xs w-full text-center space-y-5">
-            <div className="w-12 h-12 mx-auto rounded-full bg-[#F5F1EA] flex items-center justify-center text-[#1C1C1C] border border-[#1C1C1C]/10">
-              <AlertTriangle size={18} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm font-sans">
+          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 max-w-xs w-full text-center space-y-5">
+            <div className="w-12 h-12 mx-auto rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 border border-zinc-800">
+              <AlertTriangle size={20} />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-serif font-bold text-[#1C1C1C]">Reiniciar Partida?</h3>
-              <p className="text-[#5C5A55] text-xs leading-relaxed">
+              <h3 className="text-lg font-bold text-white">Reiniciar Partida?</h3>
+              <p className="text-zinc-400 text-xs leading-relaxed">
                 Isso apagará o progresso da partida atual. Esta ação não pode ser desfeita.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => { sounds.playClick(); setShowResetConfirm(false); }}
-                className="py-2 bg-[#F5F1EA] hover:bg-[#EAE5DC] text-[#1C1C1C] rounded-lg text-xs font-bold transition-colors border border-[#1C1C1C]/10"
+                className="py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-semibold transition-colors border border-zinc-800"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleResetMatch}
-                className="py-2 bg-[#8C2D19] hover:bg-[#732414] text-white rounded-lg text-xs font-bold transition-colors"
+                className="py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold transition-colors"
               >
                 Reiniciar
               </button>
