@@ -31,6 +31,16 @@ export async function checkSupabaseConnection(): Promise<boolean> {
   }
 }
 
+// Helper to handle and log RLS/Permission errors
+function handleSupabaseError(error: any, context: string) {
+  console.error(`[Supabase Error] [${context}]:`, error);
+  if (error.code === "42501") {
+    showError(`Erro de Permissão (RLS): Execute o script SQL fornecido no painel do Supabase.`);
+  } else {
+    showError(`Erro no Supabase [${context}]: ${error.message || error}`);
+  }
+}
+
 // --- STORAGE API ---
 
 /**
@@ -98,8 +108,7 @@ export async function fetchRegisteredPlayers(): Promise<RegisteredPlayer[]> {
       .order("name", { ascending: true });
 
     if (error) {
-      console.error("[Supabase] Error fetching players:", error);
-      showError(`Erro ao buscar jogadores: ${error.message || error}`);
+      handleSupabaseError(error, "fetchRegisteredPlayers");
       throw error;
     }
 
@@ -192,8 +201,7 @@ export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<
       },
     ]);
     if (error) {
-      console.error("[Supabase] Failed to insert player:", error);
-      showError(`Erro ao salvar no banco: ${error.message || error}`);
+      handleSupabaseError(error, "insertRegisteredPlayer");
       throw error;
     }
     console.log("[Supabase] Successfully inserted player!");
@@ -224,8 +232,7 @@ export async function updateRegisteredPlayer(player: RegisteredPlayer): Promise<
       })
       .eq("id", player.id);
     if (error) {
-      console.error("[Supabase] Failed to update player:", error);
-      showError(`Erro ao atualizar no banco: ${error.message || error}`);
+      handleSupabaseError(error, "updateRegisteredPlayer");
       throw error;
     }
     console.log("[Supabase] Successfully updated player!");
@@ -241,8 +248,7 @@ export async function deleteRegisteredPlayer(id: string): Promise<boolean> {
     console.log("[Supabase] Deleting player with ID:", id);
     const { error } = await supabase.from("players").delete().eq("id", id);
     if (error) {
-      console.error("[Supabase] Failed to delete player:", error);
-      showError(`Erro ao deletar no banco: ${error.message || error}`);
+      handleSupabaseError(error, "deleteRegisteredPlayer");
       throw error;
     }
     console.log("[Supabase] Successfully deleted player!");
@@ -316,8 +322,7 @@ export async function insertMatch(match: Match): Promise<boolean> {
     ]);
 
     if (matchError) {
-      console.error("[Supabase] Failed to insert match:", matchError);
-      showError(`Erro ao salvar partida: ${matchError.message || matchError}`);
+      handleSupabaseError(matchError, "insertMatch");
       throw matchError;
     }
 
@@ -339,7 +344,7 @@ export async function insertMatch(match: Match): Promise<boolean> {
       .insert(participantsInserts);
 
     if (participantsError) {
-      console.error("[Supabase] Error inserting match participants:", participantsError);
+      handleSupabaseError(participantsError, "insertMatchParticipants");
     } else {
       console.log("[Supabase] Successfully inserted match participants!");
     }
@@ -378,7 +383,7 @@ export async function insertMatch(match: Match): Promise<boolean> {
           .eq("id", p.id);
 
         if (updateError) {
-          console.error(`[Supabase] Failed to update stats for player ${p.name}:`, updateError);
+          handleSupabaseError(updateError, "updatePlayerStats");
         } else {
           console.log(`[Supabase] Successfully updated stats for player ${p.name}!`);
         }
