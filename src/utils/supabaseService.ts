@@ -17,8 +17,14 @@ export function generateUUID(): string {
 export async function checkSupabaseConnection(): Promise<boolean> {
   try {
     const { error } = await supabase.from("players").select("id").limit(1);
-    return !error;
-  } catch {
+    if (error) {
+      console.error("[Supabase Connection] Failed:", error);
+      return false;
+    }
+    console.log("[Supabase Connection] Successful!");
+    return true;
+  } catch (err) {
+    console.error("[Supabase Connection] Error:", err);
     return false;
   }
 }
@@ -42,7 +48,7 @@ export async function uploadPlayerAvatar(playerId: string, file: File): Promise<
       fileSize: file.size
     });
 
-    const SUPABASE_URL = "https://czwcdqkxmkaofmolknvt.supabase.co";
+    const SUPABASE_URL = "https://czwcdqmxmkaofmolknvt.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6d2NkcWt4bWthb2Ztb2xrbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Nzc2NDUsImV4cCI6MjA5NTA1MzY0NX0.EvPgrG9_y0SR0KEqv1Aj5a4H-cT4pPYdcn2rbFuQxnw";
 
     // Upload file using standard fetch to Supabase Storage API
@@ -83,12 +89,18 @@ export async function uploadPlayerAvatar(playerId: string, file: File): Promise<
 
 export async function fetchRegisteredPlayers(): Promise<RegisteredPlayer[]> {
   try {
+    console.log("[Supabase] Fetching registered players...");
     const { data, error } = await supabase
       .from("players")
       .select("*")
       .order("name", { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error("[Supabase] Error fetching players:", error);
+      throw error;
+    }
+
+    console.log("[Supabase] Fetch players response:", data);
 
     if (data) {
       return data.map((p: any) => ({
@@ -134,6 +146,7 @@ export async function isPlayerNameDuplicate(name: string, excludeId?: string): P
 
 export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<boolean> {
   try {
+    console.log("[Supabase] Inserting player:", player);
     const { error } = await supabase.from("players").insert([
       {
         id: player.id,
@@ -148,7 +161,11 @@ export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<
         updated_at: new Date().toISOString(),
       },
     ]);
-    if (error) throw error;
+    if (error) {
+      console.error("[Supabase] Failed to insert player:", error);
+      throw error;
+    }
+    console.log("[Supabase] Successfully inserted player!");
     return true;
   } catch (err) {
     console.error("[Supabase] Error inserting player:", err);
@@ -158,6 +175,7 @@ export async function insertRegisteredPlayer(player: RegisteredPlayer): Promise<
 
 export async function updateRegisteredPlayer(player: RegisteredPlayer): Promise<boolean> {
   try {
+    console.log("[Supabase] Updating player:", player);
     const { error } = await supabase
       .from("players")
       .update({
@@ -168,7 +186,11 @@ export async function updateRegisteredPlayer(player: RegisteredPlayer): Promise<
         updated_at: new Date().toISOString(),
       })
       .eq("id", player.id);
-    if (error) throw error;
+    if (error) {
+      console.error("[Supabase] Failed to update player:", error);
+      throw error;
+    }
+    console.log("[Supabase] Successfully updated player!");
     return true;
   } catch (err) {
     console.error("[Supabase] Error updating player:", err);
@@ -178,8 +200,13 @@ export async function updateRegisteredPlayer(player: RegisteredPlayer): Promise<
 
 export async function deleteRegisteredPlayer(id: string): Promise<boolean> {
   try {
+    console.log("[Supabase] Deleting player with ID:", id);
     const { error } = await supabase.from("players").delete().eq("id", id);
-    if (error) throw error;
+    if (error) {
+      console.error("[Supabase] Failed to delete player:", error);
+      throw error;
+    }
+    console.log("[Supabase] Successfully deleted player!");
     return true;
   } catch (err) {
     console.error("[Supabase] Error deleting player:", err);
@@ -191,12 +218,18 @@ export async function deleteRegisteredPlayer(id: string): Promise<boolean> {
 
 export async function fetchMatches(): Promise<Match[]> {
   try {
+    console.log("[Supabase] Fetching matches...");
     const { data, error } = await supabase
       .from("matches")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error("[Supabase] Error fetching matches:", error);
+      throw error;
+    }
+
+    console.log("[Supabase] Fetch matches response:", data);
 
     if (data) {
       return data.map((m: any) => {
@@ -225,6 +258,7 @@ export async function fetchMatches(): Promise<Match[]> {
 
 export async function insertMatch(match: Match): Promise<boolean> {
   try {
+    console.log("[Supabase] Inserting match:", match);
     // 1. Insert into matches table
     const { error: matchError } = await supabase.from("matches").insert([
       {
@@ -242,7 +276,12 @@ export async function insertMatch(match: Match): Promise<boolean> {
       },
     ]);
 
-    if (matchError) throw matchError;
+    if (matchError) {
+      console.error("[Supabase] Failed to insert match:", matchError);
+      throw matchError;
+    }
+
+    console.log("[Supabase] Successfully inserted match!");
 
     // 2. Insert into match_participants table
     const participantsInserts = match.players.map((p, idx) => ({
@@ -254,12 +293,15 @@ export async function insertMatch(match: Match): Promise<boolean> {
       placement: p.isEliminated ? idx + 2 : 1, // Winner is 1st, others sorted
     }));
 
+    console.log("[Supabase] Inserting match participants:", participantsInserts);
     const { error: participantsError } = await supabase
       .from("match_participants")
       .insert(participantsInserts);
 
     if (participantsError) {
       console.error("[Supabase] Error inserting match participants:", participantsError);
+    } else {
+      console.log("[Supabase] Successfully inserted match participants!");
     }
 
     // 3. Automatically update player statistics in Supabase
@@ -278,7 +320,13 @@ export async function insertMatch(match: Match): Promise<boolean> {
         const newVictories = (currentPlayerData.victories || 0) + (isWinner ? 1 : 0);
         const newWinRate = newMatchesPlayed > 0 ? Math.round((newVictories / newMatchesPlayed) * 100) : 0;
 
-        await supabase
+        console.log(`[Supabase] Updating stats for player ${p.name}:`, {
+          matches_played: newMatchesPlayed,
+          victories: newVictories,
+          win_rate: newWinRate
+        });
+
+        const { error: updateError } = await supabase
           .from("players")
           .update({
             matches_played: newMatchesPlayed,
@@ -287,6 +335,12 @@ export async function insertMatch(match: Match): Promise<boolean> {
             updated_at: new Date().toISOString(),
           })
           .eq("id", p.id);
+
+        if (updateError) {
+          console.error(`[Supabase] Failed to update stats for player ${p.name}:`, updateError);
+        } else {
+          console.log(`[Supabase] Successfully updated stats for player ${p.name}!`);
+        }
       }
     }
 
