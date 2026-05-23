@@ -439,49 +439,40 @@ export default function Index() {
 
   const leader = getLeader();
 
-  // Helper to convert hex to rgba for custom glows
-  const hexToRgba = (hex: string, alpha: number) => {
-    const cleanHex = hex.replace("#", "");
-    const r = parseInt(cleanHex.slice(0, 2), 16);
-    const g = parseInt(cleanHex.slice(2, 4), 16);
-    const b = parseInt(cleanHex.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
-
-  // Theme styling helper
+  // Theme styling helper - refined to be elegant and cinematic
   const getThemeClasses = () => {
     switch (settings.theme) {
       case "casino-green":
         return {
-          bg: "bg-gradient-to-b from-emerald-950 via-zinc-950 to-black",
+          bg: "bg-[#080A0F]",
           accent: "text-emerald-400",
-          border: "border-emerald-500/20",
+          border: "border-emerald-950/40",
           button: "bg-emerald-500 hover:bg-emerald-400 text-black",
-          glow: "shadow-emerald-500/10",
+          glow: "shadow-emerald-950/20",
         };
       case "poker-red":
         return {
-          bg: "bg-gradient-to-b from-red-950 via-zinc-950 to-black",
+          bg: "bg-[#0A0808]",
           accent: "text-red-400",
-          border: "border-red-500/20",
+          border: "border-red-950/40",
           button: "bg-red-500 hover:bg-red-400 text-white",
-          glow: "shadow-red-500/10",
+          glow: "shadow-red-950/20",
         };
       case "midnight-blue":
         return {
-          bg: "bg-gradient-to-b from-blue-950 via-zinc-950 to-black",
+          bg: "bg-[#08090F]",
           accent: "text-blue-400",
-          border: "border-blue-500/20",
+          border: "border-blue-950/40",
           button: "bg-blue-500 hover:bg-blue-400 text-white",
-          glow: "shadow-blue-500/10",
+          glow: "shadow-blue-950/20",
         };
       case "obsidian":
         return {
-          bg: "bg-gradient-to-b from-purple-950 via-zinc-950 to-black",
+          bg: "bg-[#09080F]",
           accent: "text-purple-400",
-          border: "border-purple-500/20",
+          border: "border-purple-950/40",
           button: "bg-purple-500 hover:bg-purple-400 text-white",
-          glow: "shadow-purple-500/10",
+          glow: "shadow-purple-950/20",
         };
     }
   };
@@ -502,7 +493,7 @@ export default function Index() {
     : [];
 
   return (
-    <div className={`min-h-screen ${themeStyles.bg} text-white font-sans relative overflow-x-hidden pb-24`}>
+    <div className={`min-h-screen ${themeStyles.bg} text-zinc-100 font-sans relative overflow-x-hidden pb-28 transition-colors duration-500`}>
       {/* Background Particles */}
       <BackgroundParticles theme={settings.theme} />
 
@@ -510,23 +501,22 @@ export default function Index() {
       <Confetti active={!!(currentMatch && currentMatch.isFinished)} />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-md border-b border-zinc-800/50 px-4 py-3">
+      <header className="sticky top-0 z-40 bg-[#0B0C10]/80 backdrop-blur-md border-b border-zinc-900/80 px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-              <Gamepad2 size={18} className="text-black" />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-sm">
+              <Gamepad2 size={18} className="text-zinc-300" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-base font-black tracking-tight">Baioia</h1>
-                {/* Sync Status Indicator */}
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold tracking-tight text-white">Baioia</h1>
                 {isOnline ? (
                   <span className="flex h-2 w-2 relative" title="Supabase Conectado">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                 ) : (
-                  <span className="h-2 w-2 rounded-full bg-zinc-600" title="Modo Local / Offline"></span>
+                  <span className="h-2 w-2 rounded-full bg-zinc-700" title="Modo Local / Offline"></span>
                 )}
               </div>
             </div>
@@ -536,7 +526,7 @@ export default function Index() {
             {/* Sound Toggle */}
             <button
               onClick={toggleSound}
-              className="p-2 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white transition-colors"
+              className="p-2 rounded-xl bg-zinc-900/50 border border-zinc-800/60 text-zinc-400 hover:text-white transition-all active:scale-95"
             >
               {settings.soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
@@ -545,7 +535,7 @@ export default function Index() {
             {currentMatch && (
               <button
                 onClick={() => { sounds.playClick(); setShowResetConfirm(true); }}
-                className="p-2 rounded-xl bg-zinc-900/80 border border-zinc-800 text-red-400 hover:text-red-300 transition-colors"
+                className="p-2 rounded-xl bg-zinc-900/50 border border-zinc-800/60 text-zinc-400 hover:text-red-400 transition-all active:scale-95"
                 title="Reiniciar Partida"
               >
                 <RotateCcw size={16} />
@@ -556,48 +546,48 @@ export default function Index() {
       </header>
 
       {/* Main Content Container */}
-      <main className="max-w-md mx-auto px-4 pt-4 space-y-4 relative z-10">
+      <main className="max-w-md mx-auto px-4 pt-6 space-y-6 relative z-10">
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 gap-1 bg-zinc-900/60 p-1 rounded-2xl border border-zinc-800/50">
+        <div className="grid grid-cols-3 gap-1 bg-zinc-950/80 p-1 rounded-2xl border border-zinc-900/60">
           <button
             onClick={() => { sounds.playClick(); setActiveTab("game"); }}
-            className={`py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
+            className={`py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
               activeTab === "game"
-                ? "bg-zinc-800 text-white shadow-md"
+                ? "bg-zinc-900 text-white shadow-sm border border-zinc-800/50"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Gamepad2 size={13} />
+            <Gamepad2 size={14} />
             Partida
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("players"); }}
-            className={`py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
+            className={`py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
               activeTab === "players"
-                ? "bg-zinc-800 text-white shadow-md"
+                ? "bg-zinc-900 text-white shadow-sm border border-zinc-800/50"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Users size={13} />
+            <Users size={14} />
             Jogadores
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("stats"); }}
-            className={`py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
+            className={`py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
               activeTab === "stats"
-                ? "bg-zinc-800 text-white shadow-md"
+                ? "bg-zinc-900 text-white shadow-sm border border-zinc-800/50"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <BarChart3 size={13} />
+            <BarChart3 size={14} />
             Estatísticas
           </button>
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 space-y-3">
-            <Loader2 className="animate-spin text-amber-500" size={32} />
-            <p className="text-zinc-400 text-sm">Sincronizando com Supabase...</p>
+          <div className="flex flex-col items-center justify-center py-24 space-y-4">
+            <Loader2 className="animate-spin text-zinc-400" size={28} />
+            <p className="text-zinc-500 text-xs tracking-wide uppercase">Sincronizando dados...</p>
           </div>
         ) : activeTab === "stats" ? (
           <StatsView matches={matches} registeredPlayers={registeredPlayers} />
@@ -610,92 +600,85 @@ export default function Index() {
           />
         ) : !currentMatch ? (
           /* Empty State / Start Match */
-          <div className="text-center py-12 space-y-6">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-zinc-900/50 border border-zinc-800 flex items-center justify-center shadow-2xl">
-              <Sparkles size={36} className={themeStyles.accent} />
+          <div className="text-center py-16 space-y-8">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-zinc-950 border border-zinc-900 flex items-center justify-center shadow-sm">
+              <Sparkles size={32} className="text-zinc-400" />
             </div>
-            <div className="space-y-2">
-              <h2 className="text-xl font-extrabold">Nenhuma partida activa</h2>
-              <p className="text-zinc-400 text-sm max-w-xs mx-auto">
-                Comece uma nova partida de Pontinho e acompanhe os pontos em tempo real com estilo.
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-white tracking-tight">Nenhuma partida ativa</h2>
+              <p className="text-zinc-400 text-sm max-w-xs mx-auto leading-relaxed">
+                Inicie uma nova partida de Pontinho para acompanhar as pontuações em tempo real com um design limpo e profissional.
               </p>
             </div>
             <button
               onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-              className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold rounded-2xl shadow-lg shadow-amber-900/20 flex items-center justify-center gap-2 mx-auto transition-all transform active:scale-95"
+              className="px-8 py-4 bg-white hover:bg-zinc-100 text-black font-bold rounded-2xl shadow-sm flex items-center justify-center gap-2.5 mx-auto transition-all transform active:scale-95 text-sm"
             >
-              <Play size={16} fill="currentColor" />
+              <Play size={15} fill="currentColor" />
               Nova Partida
             </button>
           </div>
         ) : (
           /* Active Match View */
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* Match Info Bar */}
-            <div className="flex items-center justify-between bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-3">
-              <div className="flex items-center gap-2">
-                <Clock size={14} className="text-zinc-400" />
-                <span className="text-xs font-mono text-zinc-300">{formatTime(timer)}</span>
+            <div className="flex items-center justify-between bg-zinc-950/60 border border-zinc-900/60 rounded-2xl p-4">
+              <div className="flex items-center gap-2.5">
+                <Clock size={15} className="text-zinc-500" />
+                <span className="text-sm font-mono font-medium text-zinc-300">{formatTime(timer)}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-zinc-400 block">Limite de Pontos</span>
-                <span className="text-xs font-bold text-amber-400">{currentMatch.limitScore} pts</span>
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold block">Limite de Pontos</span>
+                <span className="text-sm font-bold text-white">{currentMatch.limitScore} pts</span>
               </div>
             </div>
 
             {/* Active Players Section */}
             <div className="space-y-3">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1">
-                Jogadores Ativos ({activePlayersList.length})
-              </h3>
+              <div className="flex justify-between items-center px-1">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                  Jogadores Ativos ({activePlayersList.length})
+                </h3>
+                <span className="text-[10px] text-zinc-500 font-medium">Ordenado por menor pontuação</span>
+              </div>
+              
               <div className="space-y-3">
                 {activePlayersList.map((player, idx) => {
                   const isLeader = leader && leader.id === player.id;
                   const progress = Math.min(100, (player.totalScore / currentMatch.limitScore) * 100);
-                  const playerGlow = hexToRgba(player.color, isLeader ? 0.25 : 0.12);
 
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-zinc-900/40 border rounded-2xl p-4.5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
+                      className={`relative overflow-hidden bg-zinc-950/80 border rounded-2xl p-4 transition-all duration-300 ${
                         isLeader
-                          ? "border-amber-500/50 bg-gradient-to-r from-zinc-900/90 to-amber-950/20"
-                          : "border-zinc-800/60"
+                          ? "border-zinc-800 bg-gradient-to-r from-zinc-950 to-zinc-900/40"
+                          : "border-zinc-900/80"
                       }`}
-                      style={{
-                        boxShadow: `0 10px 25px -5px ${playerGlow}, 0 8px 10px -6px ${playerGlow}`
-                      }}
                     >
-                      {/* Progress Bar Background */}
+                      {/* Progress Bar Background - subtle and integrated */}
                       <div
-                        className="absolute bottom-0 left-0 h-1.5 bg-gradient-to-r from-amber-500 to-red-500 transition-all duration-500"
+                        className="absolute bottom-0 left-0 h-1 bg-zinc-800 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
 
-                      <div className="flex items-center justify-between relative z-10 gap-3">
-                        <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                      <div className="flex items-center justify-between relative z-10 gap-4">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
                           {/* Premium Avatar Container */}
                           <div className="relative flex-shrink-0">
                             {isLeader && (
-                              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                                <Crown size={20} className="text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" />
+                              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+                                <Crown size={16} className="text-amber-400 fill-amber-400" />
                               </div>
                             )}
                             
-                            {/* Gradient Border Ring */}
+                            {/* Clean Border Ring */}
                             <div
-                              className={`rounded-full p-0.5 transition-all duration-300 ${
-                                isLeader 
-                                  ? "bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 animate-pulse" 
-                                  : "bg-gradient-to-tr from-zinc-800 to-zinc-700"
-                              }`}
-                              style={!isLeader ? { backgroundImage: `linear-gradient(to top right, ${player.color}, #27272a)` } : {}}
+                              className="rounded-full p-0.5 bg-zinc-900 border border-zinc-800"
+                              style={{ borderColor: player.color }}
                             >
                               <div
-                                className={`rounded-full overflow-hidden flex items-center justify-center font-bold shadow-2xl relative transition-all duration-300 ${
-                                  isLeader ? "w-16 h-16 text-3xl" : "w-14 h-14 text-2xl"
-                                }`}
-                                style={{ backgroundColor: `${player.color}15` }}
+                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-14 h-14 text-2xl bg-zinc-950"
                               >
                                 {player.avatarUrl ? (
                                   <img
@@ -710,43 +693,35 @@ export default function Index() {
                             </div>
 
                             {/* Position Badge */}
-                            <span className={`absolute -bottom-1 -right-1 text-[9px] font-black px-1.5 py-0.5 rounded-full border shadow-md z-10 ${
-                              isLeader 
-                                ? "bg-amber-500 text-black border-amber-400" 
-                                : "bg-zinc-900 text-zinc-300 border-zinc-800"
-                            }`}>
+                            <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800 shadow-sm">
                               #{idx + 1}
                             </span>
                           </div>
 
                           {/* Player Info */}
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <h3 className={`font-black tracking-tight truncate ${
-                                isLeader ? "text-base text-amber-300" : "text-sm text-white"
-                              }`}>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-bold text-base text-white tracking-tight truncate">
                                 {player.name}
                               </h3>
                               {player.reentries > 0 && (
-                                <span className="text-[8px] font-black bg-zinc-800/90 text-zinc-400 px-1.5 py-0.5 rounded-full border border-zinc-700/50">
+                                <span className="text-[9px] font-semibold bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-800">
                                   {player.reentries} Reentr.
                                 </span>
                               )}
                             </div>
-                            <p className="text-[10px] text-zinc-400 mt-0.5 font-medium">
+                            <p className="text-xs text-zinc-500 mt-1 font-medium">
                               {isLeader ? "👑 Líder da Mesa" : `Atrás do líder por ${player.totalScore - leader!.totalScore} pts`}
                             </p>
                           </div>
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right flex-shrink-0 bg-zinc-950/40 border border-zinc-800/50 rounded-xl px-3.5 py-2 min-w-[70px]">
-                          <span className={`text-2xl font-black tracking-tight block leading-none ${
-                            isLeader ? "text-amber-400" : "text-white"
-                          }`}>
+                        <div className="text-right flex-shrink-0 bg-zinc-900/40 border border-zinc-800/60 rounded-xl px-4 py-2.5 min-w-[75px]">
+                          <span className="text-2xl font-mono font-bold tracking-tight block leading-none text-white">
                             {player.totalScore}
                           </span>
-                          <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-wider block mt-0.5">pontos</span>
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mt-1">pontos</span>
                         </div>
                       </div>
                     </div>
@@ -757,23 +732,23 @@ export default function Index() {
 
             {/* Eliminated Players Section */}
             {eliminatedPlayersList.length > 0 && (
-              <div className="space-y-2 pt-2">
-                <h3 className="text-xs font-bold text-red-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
-                  <Skull size={12} />
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider px-1 flex items-center gap-2">
+                  <Skull size={13} />
                   Jogadores Eliminados ({eliminatedPlayersList.length})
                 </h3>
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   {eliminatedPlayersList.map((player) => {
                     return (
                       <div
                         key={player.id}
-                        className="relative overflow-hidden bg-zinc-950/60 border border-red-950/30 rounded-2xl p-4 opacity-75 transition-all duration-300"
+                        className="relative overflow-hidden bg-zinc-950/40 border border-zinc-900/50 rounded-2xl p-4 opacity-60"
                       >
                         <div className="flex items-center justify-between relative z-10">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3.5">
                             {/* Avatar */}
                             <div
-                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-2xl font-bold bg-red-950/20 border border-red-900/30 relative"
+                              className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-zinc-900 border border-zinc-800 relative"
                             >
                               {player.avatarUrl ? (
                                 <img
@@ -784,19 +759,19 @@ export default function Index() {
                               ) : (
                                 player.avatar
                               )}
-                              <span className="absolute -bottom-1 -right-1 bg-red-600 text-white p-0.5 rounded-full shadow-md">
+                              <span className="absolute -bottom-1 -right-1 bg-zinc-800 text-zinc-400 p-0.5 rounded-full border border-zinc-700">
                                 <Skull size={10} />
                               </span>
                             </div>
 
                             <div>
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-2">
                                 <h3 className="font-bold text-sm text-zinc-400 line-through">{player.name}</h3>
-                                <span className="text-[9px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded-full">
+                                <span className="text-[9px] font-semibold bg-zinc-900 text-zinc-500 border border-zinc-800 px-2 py-0.5 rounded-full">
                                   ELIMINADO
                                 </span>
                               </div>
-                              <p className="text-xs text-zinc-500">
+                              <p className="text-xs text-zinc-500 mt-0.5">
                                 Estourou com {player.totalScore} pts
                               </p>
                             </div>
@@ -807,17 +782,17 @@ export default function Index() {
                             {settings.allowReentry && !currentMatch.isFinished && (
                               <button
                                 onClick={() => handleReentry(player.id)}
-                                className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl text-xs font-semibold transition-all active:scale-95"
                               >
                                 <RefreshCw size={12} />
                                 Reentrar
                               </button>
                             )}
-                            <div className="text-right">
-                              <span className="text-xl font-black tracking-tight text-zinc-500">
+                            <div className="text-right min-w-[45px]">
+                              <span className="text-lg font-mono font-bold text-zinc-500">
                                 {player.totalScore}
                               </span>
-                              <span className="text-[10px] text-zinc-600 block">pontos</span>
+                              <span className="text-[9px] text-zinc-600 block">pontos</span>
                             </div>
                           </div>
                         </div>
@@ -836,9 +811,9 @@ export default function Index() {
               <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 w-full max-w-xs px-4">
                 <button
                   onClick={() => { sounds.playClick(); setIsAddScoreOpen(true); }}
-                  className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold rounded-2xl shadow-xl shadow-amber-900/30 flex items-center justify-center gap-2 transition-all transform active:scale-95"
+                  className="w-full py-4 bg-white hover:bg-zinc-100 text-black font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm"
                 >
-                  <Plus size={20} />
+                  <Plus size={18} />
                   Adicionar Rodada
                 </button>
               </div>
@@ -846,8 +821,8 @@ export default function Index() {
 
             {/* Victory Screen Overlay */}
             {currentMatch.isFinished && (
-              <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 text-center space-y-4 shadow-2xl">
-                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-amber-500/50 shadow-lg relative">
+              <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-6 text-center space-y-5 shadow-xl">
+                <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border border-zinc-800 shadow-sm relative">
                   {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl ? (
                     <img
                       src={currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.avatarUrl}
@@ -855,21 +830,21 @@ export default function Index() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-3xl bg-amber-500/10 text-amber-400">
-                      <Trophy size={32} />
+                    <div className="w-full h-full flex items-center justify-center text-3xl bg-zinc-900 text-zinc-300">
+                      <Trophy size={28} />
                     </div>
                   )}
                 </div>
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Vencedor da Partida</span>
-                  <h2 className="text-2xl font-black text-white">
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Vencedor da Partida</span>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">
                     {currentMatch.players.find((p) => p.id === currentMatch.winnerId)?.name || "Ninguém"}
                   </h2>
-                  <p className="text-zinc-400 text-xs">Partida finalizada em {formatTime(timer)}</p>
+                  <p className="text-zinc-500 text-xs">Partida finalizada em {formatTime(timer)}</p>
                 </div>
                 <button
                   onClick={() => { sounds.playClick(); setIsNewMatchOpen(true); }}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl transition-all transform active:scale-95"
+                  className="w-full py-3.5 bg-white hover:bg-zinc-100 text-black font-bold rounded-xl transition-all transform active:scale-95 text-sm"
                 >
                   Jogar Novamente
                 </button>
@@ -899,26 +874,26 @@ export default function Index() {
       {/* Reset Confirmation Modal */}
       {showResetConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-xs w-full text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 flex items-center justify-center text-red-400">
-              <AlertTriangle size={24} />
+          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 max-w-xs w-full text-center space-y-5">
+            <div className="w-12 h-12 mx-auto rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 border border-zinc-800">
+              <AlertTriangle size={20} />
             </div>
-            <div>
+            <div className="space-y-2">
               <h3 className="text-lg font-bold text-white">Reiniciar Partida?</h3>
-              <p className="text-zinc-400 text-xs mt-1">
+              <p className="text-zinc-400 text-xs leading-relaxed">
                 Isso apagará o progresso da partida atual. Esta ação não pode ser desfeita.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => { sounds.playClick(); setShowResetConfirm(false); }}
-                className="py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition-colors"
+                className="py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-semibold transition-colors border border-zinc-800"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleResetMatch}
-                className="py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition-colors"
+                className="py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold transition-colors"
               >
                 Reiniciar
               </button>

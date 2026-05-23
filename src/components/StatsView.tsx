@@ -66,32 +66,32 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
     <div className="space-y-6">
       {/* Overview Cards */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4 flex items-center gap-3">
-          <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-            <Trophy size={20} />
+        <div className="bg-zinc-950/80 border border-zinc-900/60 rounded-2xl p-4 flex items-center gap-3.5">
+          <div className="p-2.5 bg-zinc-900 rounded-xl text-zinc-400 border border-zinc-800">
+            <Trophy size={18} />
           </div>
           <div>
-            <p className="text-xs text-zinc-400">Partidas Concluídas</p>
-            <h4 className="text-xl font-bold text-white">{finishedMatches.length}</h4>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Partidas Concluídas</p>
+            <h4 className="text-lg font-bold text-white mt-0.5">{finishedMatches.length}</h4>
           </div>
         </div>
 
-        <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4 flex items-center gap-3">
-          <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
-            <Users size={20} />
+        <div className="bg-zinc-950/80 border border-zinc-900/60 rounded-2xl p-4 flex items-center gap-3.5">
+          <div className="p-2.5 bg-zinc-900 rounded-xl text-zinc-400 border border-zinc-800">
+            <Users size={18} />
           </div>
           <div>
-            <p className="text-xs text-zinc-400">Jogadores Ativos</p>
-            <h4 className="text-xl font-bold text-white">{registeredPlayers.length}</h4>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Jogadores Ativos</p>
+            <h4 className="text-lg font-bold text-white mt-0.5">{registeredPlayers.length}</h4>
           </div>
         </div>
       </div>
 
       {/* Leaderboard / Best Players */}
-      <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Award className="text-amber-400" size={18} />
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Ranking Geral</h3>
+      <div className="bg-zinc-950/80 border border-zinc-900/60 rounded-2xl p-5">
+        <div className="flex items-center gap-2.5 mb-4">
+          <Award className="text-zinc-400" size={16} />
+          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Ranking Geral</h3>
         </div>
 
         {playerStats.length === 0 ? (
@@ -101,21 +101,21 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
             {playerStats.map((stat, idx) => (
               <div
                 key={stat.name}
-                className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/30 space-y-3"
+                className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-900/60 space-y-3.5"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      idx === 0 ? "bg-amber-500 text-black" :
-                      idx === 1 ? "bg-zinc-300 text-black" :
-                      idx === 2 ? "bg-amber-700 text-white" : "bg-zinc-800 text-zinc-400"
-                    }`}>
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      idx === 0 ? "bg-white text-black" :
+                      idx === 1 ? "bg-zinc-800 text-zinc-300" :
+                      idx === 2 ? "bg-zinc-900 text-zinc-400" : "bg-zinc-950 text-zinc-500"
+                    } border border-zinc-800`}>
                       {idx + 1}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <div
-                        className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold shadow-inner relative"
-                        style={{ backgroundColor: `${stat.color}20`, border: `1px solid ${stat.color}40` }}
+                        className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-zinc-900 border border-zinc-800 relative"
+                        style={{ borderColor: stat.color }}
                       >
                         {stat.avatarUrl ? (
                           <img
@@ -132,39 +132,39 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
                           {stat.name}
                           {idx === 0 && <Star size={12} className="text-amber-400 fill-amber-400" />}
                         </h4>
-                        <p className="text-[10px] text-zinc-500">Último jogo: {stat.lastPlayed}</p>
+                        <p className="text-[10px] text-zinc-500 mt-0.5">Último jogo: {stat.lastPlayed}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <p className="text-sm font-bold text-emerald-400">{stat.wins} Vitórias</p>
-                    <p className="text-[10px] text-zinc-500">{stat.gamesPlayed} partidas</p>
+                    <p className="text-sm font-bold text-white">{stat.wins} Vitórias</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">{stat.gamesPlayed} partidas</p>
                   </div>
                 </div>
 
                 {/* Win Rate Progress Bar */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] text-zinc-400">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
                     <span>Aproveitamento</span>
-                    <span className="font-bold text-amber-400">{stat.winRate}%</span>
+                    <span className="font-bold text-white">{stat.winRate}%</span>
                   </div>
-                  <div className="w-full h-1.5 bg-zinc-950 rounded-full overflow-hidden">
+                  <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+                      className="h-full bg-white rounded-full"
                       style={{ width: `${stat.winRate}%` }}
                     />
                   </div>
                 </div>
 
                 {/* Extra Stats Grid */}
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-zinc-800/30 text-[10px] text-zinc-400">
-                  <div className="flex items-center gap-1">
-                    <RefreshCw size={10} className="text-zinc-500" />
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-900/60 text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5">
+                    <RefreshCw size={10} className="text-zinc-600" />
                     <span>Reentradas: <strong className="text-zinc-300">{stat.totalReentries}</strong></span>
                   </div>
-                  <div className="flex items-center gap-1 justify-end">
-                    <Percent size={10} className="text-zinc-500" />
+                  <div className="flex items-center gap-1.5 justify-end">
+                    <Percent size={10} className="text-zinc-600" />
                     <span>Média: <strong className="text-zinc-300">{stat.averageScore} pts/rodada</strong></span>
                   </div>
                 </div>
@@ -175,10 +175,10 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
       </div>
 
       {/* Match History List */}
-      <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar className="text-zinc-400" size={18} />
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Histórico de Partidas</h3>
+      <div className="bg-zinc-950/80 border border-zinc-900/60 rounded-2xl p-5">
+        <div className="flex items-center gap-2.5 mb-4">
+          <Calendar className="text-zinc-400" size={16} />
+          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Histórico de Partidas</h3>
         </div>
 
         {finishedMatches.length === 0 ? (
@@ -190,15 +190,15 @@ export const StatsView: React.FC<StatsViewProps> = ({ matches, registeredPlayers
               return (
                 <div
                   key={match.id}
-                  className="bg-zinc-950/40 p-3.5 rounded-xl border border-zinc-800/30 flex justify-between items-center"
+                  className="bg-zinc-950/40 p-3.5 rounded-xl border border-zinc-900/60 flex justify-between items-center"
                 >
                   <div>
                     <h4 className="text-white font-bold text-sm">{match.name}</h4>
-                    <p className="text-[10px] text-zinc-500">{match.date}</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">{match.date}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-zinc-500 block">Vencedor</span>
-                    <span className="text-sm font-bold text-amber-400">{winner?.name || "N/A"}</span>
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold block">Vencedor</span>
+                    <span className="text-sm font-bold text-white mt-0.5">{winner?.name || "N/A"}</span>
                   </div>
                 </div>
               );

@@ -52,25 +52,25 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-md bg-zinc-900/95 border border-zinc-800 rounded-3xl p-6 shadow-2xl my-8">
+      <div className="relative w-full max-w-md bg-zinc-950 border border-zinc-900 rounded-3xl p-6 shadow-2xl my-8">
         {/* Close Button */}
         <button
           onClick={() => { sounds.playClick(); onClose(); }}
-          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white rounded-full bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
+          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors border border-zinc-800"
         >
-          <X size={20} />
+          <X size={16} />
         </button>
 
         <div className="text-center mb-6">
-          <span className="text-xs font-bold tracking-widest text-amber-400 uppercase bg-amber-500/10 px-3 py-1 rounded-full">
+          <span className="text-[10px] font-bold tracking-wider text-zinc-500 uppercase bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
             Fim da Rodada
           </span>
-          <h2 className="text-2xl font-extrabold text-white mt-2">Adicionar Pontos</h2>
-          <p className="text-zinc-400 text-sm mt-1">Insira os pontos acumulados nesta rodada</p>
+          <h2 className="text-xl font-bold text-white mt-3 tracking-tight">Adicionar Pontos</h2>
+          <p className="text-zinc-400 text-xs mt-1">Insira os pontos acumulados nesta rodada</p>
         </div>
 
         {/* Players Score Inputs */}
-        <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1 mb-6">
+        <div className="space-y-3 max-h-[45vh] overflow-y-auto pr-1 mb-6">
           {players.map((player) => {
             if (player.isEliminated) return null;
             const score = roundScores[player.id] || 0;
@@ -78,12 +78,12 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
             return (
               <div
                 key={player.id}
-                className="flex items-center justify-between bg-zinc-950/50 p-3 rounded-2xl border border-zinc-800/50"
+                className="flex items-center justify-between bg-zinc-900/40 p-3 rounded-2xl border border-zinc-900/60"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold shadow-inner relative"
-                    style={{ backgroundColor: `${player.color}20`, border: `1px solid ${player.color}40` }}
+                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold bg-zinc-900 border border-zinc-800 relative"
+                    style={{ borderColor: player.color }}
                   >
                     {player.avatarUrl ? (
                       <img
@@ -97,7 +97,7 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
                   </div>
                   <div>
                     <h4 className="text-white font-bold text-sm">{player.name}</h4>
-                    <p className="text-xs text-zinc-400">Total: {player.totalScore} pts</p>
+                    <p className="text-xs text-zinc-500">Total: {player.totalScore} pts</p>
                   </div>
                 </div>
 
@@ -106,9 +106,9 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
                   {/* Minus Button */}
                   <button
                     onClick={() => handleScoreChange(player.id, -1)}
-                    className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition-colors active:scale-90"
+                    className="w-8 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 flex items-center justify-center transition-colors active:scale-90 border border-zinc-800"
                   >
-                    <Minus size={14} />
+                    <Minus size={12} />
                   </button>
 
                   {/* Score Input */}
@@ -117,20 +117,20 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
                     value={score === 0 ? "" : score}
                     onChange={(e) => handleManualInput(player.id, e.target.value)}
                     placeholder="0"
-                    className="w-14 bg-zinc-900 border border-zinc-800 rounded-lg py-1 text-center text-white font-bold text-sm focus:outline-none focus:border-amber-500"
+                    className="w-12 bg-zinc-950 border border-zinc-900 rounded-lg py-1 text-center text-white font-mono font-bold text-sm focus:outline-none focus:border-zinc-700"
                   />
 
                   {/* Plus Buttons */}
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleScoreChange(player.id, 1)}
-                      className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition-colors active:scale-90 text-xs font-bold"
+                      className="w-8 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 flex items-center justify-center transition-colors active:scale-90 text-xs font-bold border border-zinc-800"
                     >
                       +1
                     </button>
                     <button
                       onClick={() => handleScoreChange(player.id, 10)}
-                      className="w-10 h-8 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 flex items-center justify-center transition-colors active:scale-90 text-xs font-bold"
+                      className="w-10 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 flex items-center justify-center transition-colors active:scale-90 text-xs font-bold border border-zinc-800"
                     >
                       +10
                     </button>
@@ -144,9 +144,9 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({ isOpen, onClose, p
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold rounded-2xl shadow-lg shadow-amber-900/20 flex items-center justify-center gap-2 transition-all transform active:scale-95"
+          className="w-full py-4 bg-white hover:bg-zinc-100 text-black font-bold rounded-2xl shadow-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm"
         >
-          <Check size={18} />
+          <Check size={15} />
           Confirmar Rodada
         </button>
       </div>
