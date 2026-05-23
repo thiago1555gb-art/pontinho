@@ -26,37 +26,53 @@ export async function checkSupabaseConnection(): Promise<boolean> {
 // --- STORAGE API ---
 
 /**
- * Uploads a player avatar file to Supabase Storage 'avatars' bucket.
+ * Uploads a player avatar file to Supabase Storage 'player-avatars' bucket.
  * Returns the public URL of the uploaded image, or null if failed.
  */
 export async function uploadPlayerAvatar(playerId: string, file: File): Promise<string | null> {
   try {
-    // Clean file name to avoid issues
-    const fileExt = file.name.split('.').pop();
+    const bucketName = "player-avatars";
+    const fileExt = file.name.split('.').pop() || 'png';
     const fileName = `${playerId}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    
+    console.log("[Supabase Storage] Starting upload...", {
+      playerId,
+      fileName,
+      fileType: file.type,
+      fileSize: file.size
+    });
 
-    // Upload file using standard fetch to Supabase Storage API
-    // since our custom client supports standard fetch, we can construct the upload request
     const SUPABASE_URL = "https://czwcdqkxmkaofmolknvt.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6d2NkcWt4bWthb2Ztb2xrbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Nzc2NDUsImV4cCI6MjA5NTA1MzY0NX0.EvPgrG9_y0SR0KEqv1Aj5a4H-cT4pPYdcn2rbFuQxnw";
 
-    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/avatars/${filePath}`, {
+    // Upload file using standard fetch to Supabase Storage API
+    const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucketName}/${fileName}`;
+    
+    const res = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_PUBLISHABLE_KEY,
         'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        'Content-Type': file.type || 'image/png',
       },
       body: file
     });
 
+    console.log("[Supabase Storage] Upload response status:", res.status);
+
     if (!res.ok) {
       const errText = await res.text();
+      console.error("[Supabase Storage] Upload failed with error:", errText);
       throw new Error(errText);
     }
 
+    const responseData = await res.json();
+    console.log("[Supabase Storage] Upload success response data:", responseData);
+
     // Return the public URL
-    return `${SUPABASE_URL}/storage/v1/object/public/avatars/${filePath}`;
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucketName}/${fileName}`;
+    console.log("[Supabase Storage] Generated public URL:", publicUrl);
+    return publicUrl;
   } catch (err) {
     console.error("[Supabase Storage] Error uploading avatar:", err);
     return null;
