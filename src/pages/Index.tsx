@@ -489,9 +489,7 @@ export default function Index() {
       <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-md border-b border-[#D4AF37]/20 px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FFFDF9] border-2 border-[#D4AF37] flex items-center justify-center shadow-md">
-              <span className="font-serif text-2xl font-bold text-zinc-900">♠</span>
-            </div>
+            <span className="font-serif text-3xl font-bold text-[#D4AF37] select-none">♠</span>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold tracking-wide text-[#FFFDF9] font-serif">The Royal Deck</h1>
