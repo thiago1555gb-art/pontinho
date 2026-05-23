@@ -534,7 +534,7 @@ export default function Index() {
         <div className="grid grid-cols-3 gap-2 bg-black/40 p-1.5 rounded-2xl border border-[#D4AF37]/30 shadow-2xl">
           <button
             onClick={() => { sounds.playClick(); setActiveTab("game"); }}
-            className={`py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
+            className={`py-3.5 rounded-xl text-base font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
               activeTab === "game"
                 ? "bg-[#FFFDF9] text-zinc-900 shadow-[0_4px_15px_rgba(0,0,0,0.4)] border-2 border-[#D4AF37] scale-105 z-10"
                 : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
@@ -545,7 +545,7 @@ export default function Index() {
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("players"); }}
-            className={`py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
+            className={`py-3.5 rounded-xl text-base font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
               activeTab === "players"
                 ? "bg-[#FFFDF9] text-zinc-900 shadow-[0_4px_15px_rgba(0,0,0,0.4)] border-2 border-[#D4AF37] scale-105 z-10"
                 : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
@@ -556,7 +556,7 @@ export default function Index() {
           </button>
           <button
             onClick={() => { sounds.playClick(); setActiveTab("stats"); }}
-            className={`py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
+            className={`py-3.5 rounded-xl text-base font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 font-serif ${
               activeTab === "stats"
                 ? "bg-[#FFFDF9] text-zinc-900 shadow-[0_4px_15px_rgba(0,0,0,0.4)] border-2 border-[#D4AF37] scale-105 z-10"
                 : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
@@ -635,7 +635,7 @@ export default function Index() {
                   return (
                     <div
                       key={player.id}
-                      className={`relative overflow-hidden bg-[#FFFDF9] border-2 rounded-2xl p-5 shadow-xl text-zinc-900 transition-all duration-300 ${
+                      className={`relative overflow-hidden bg-[#FFFDF9] border-2 rounded-2xl p-6 shadow-xl text-zinc-900 transition-all duration-300 ${
                         isLeader
                           ? "border-[#D4AF37] ring-2 ring-[#D4AF37]/20"
                           : "border-zinc-300"
@@ -673,7 +673,7 @@ export default function Index() {
                               style={{ borderColor: player.color }}
                             >
                               <div
-                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-14 h-14 text-2xl bg-zinc-100"
+                                className="rounded-full overflow-hidden flex items-center justify-center font-bold relative w-16 h-16 text-2xl bg-zinc-100"
                               >
                                 {player.avatarUrl ? (
                                   <img
@@ -696,7 +696,7 @@ export default function Index() {
                           {/* Player Info */}
                           <div className="min-w-0 flex-1 font-sans">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-bold text-base text-zinc-900 tracking-tight truncate">
+                              <h3 className="font-bold text-lg text-zinc-900 tracking-tight truncate">
                                 {player.name}
                               </h3>
                               {player.reentries > 0 && (
@@ -712,8 +712,8 @@ export default function Index() {
                         </div>
 
                         {/* Score Display */}
-                        <div className="text-right flex-shrink-0 bg-zinc-100 border border-zinc-200 rounded-xl px-4 py-2.5 min-w-[75px] font-sans">
-                          <span className="text-2xl font-mono font-bold tracking-tight block leading-none text-zinc-900">
+                        <div className="text-right flex-shrink-0 bg-zinc-100 border border-zinc-200 rounded-xl px-4 py-3 min-w-[85px] font-sans">
+                          <span className="text-3xl font-mono font-bold tracking-tight block leading-none text-zinc-900">
                             {player.totalScore}
                           </span>
                           <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block mt-1">pontos</span>
@@ -806,9 +806,9 @@ export default function Index() {
               <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 w-full max-w-xs px-4">
                 <button
                   onClick={() => { sounds.playClick(); setIsAddScoreOpen(true); }}
-                  className="w-full py-4 bg-[#FFFDF9] text-zinc-900 hover:bg-zinc-100 font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 text-sm border-2 border-[#D4AF37] font-sans"
+                  className="w-full py-4.5 bg-[#FFFDF9] text-zinc-900 hover:bg-zinc-100 font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 text-base border-2 border-[#D4AF37] font-sans"
                 >
-                  <Plus size={18} />
+                  <Plus size={20} />
                   Adicionar Rodada
                 </button>
               </div>
